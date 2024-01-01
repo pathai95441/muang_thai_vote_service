@@ -100,6 +100,16 @@ type ClientInterface interface {
 
 	// GetAllCandidate request
 	GetAllCandidate(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SignIn request with any body
+	SignInWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SignIn(ctx context.Context, body SignInJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateNewUser request with any body
+	CreateNewUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateNewUser(ctx context.Context, body CreateNewUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) CreateNewCandidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -152,6 +162,54 @@ func (c *Client) UpdateCandidateInfo(ctx context.Context, body UpdateCandidateIn
 
 func (c *Client) GetAllCandidate(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAllCandidateRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SignInWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignInRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SignIn(ctx context.Context, body SignInJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignInRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateNewUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateNewUserRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateNewUser(ctx context.Context, body CreateNewUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateNewUserRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -269,6 +327,86 @@ func NewGetAllCandidateRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewSignInRequest calls the generic SignIn builder with application/json body
+func NewSignInRequest(server string, body SignInJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSignInRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSignInRequestWithBody generates requests for SignIn with any type of body
+func NewSignInRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/sign_in")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCreateNewUserRequest calls the generic CreateNewUser builder with application/json body
+func NewCreateNewUserRequest(server string, body CreateNewUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateNewUserRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateNewUserRequestWithBody generates requests for CreateNewUser with any type of body
+func NewCreateNewUserRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/user")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -324,12 +462,25 @@ type ClientWithResponsesInterface interface {
 
 	// GetAllCandidate request
 	GetAllCandidateWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAllCandidateResponse, error)
+
+	// SignIn request with any body
+	SignInWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignInResponse, error)
+
+	SignInWithResponse(ctx context.Context, body SignInJSONRequestBody, reqEditors ...RequestEditorFn) (*SignInResponse, error)
+
+	// CreateNewUser request with any body
+	CreateNewUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNewUserResponse, error)
+
+	CreateNewUserWithResponse(ctx context.Context, body CreateNewUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateNewUserResponse, error)
 }
 
 type CreateNewCandidateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON500      *struct {
+	JSON400      *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+	JSON500 *struct {
 		Error *ErrorResultData `json:"error,omitempty"`
 	}
 }
@@ -353,7 +504,10 @@ func (r CreateNewCandidateResponse) StatusCode() int {
 type UpdateCandidateInfoResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON500      *struct {
+	JSON400      *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+	JSON500 *struct {
 		Error *ErrorResultData `json:"error,omitempty"`
 	}
 }
@@ -395,6 +549,63 @@ func (r GetAllCandidateResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetAllCandidateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SignInResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Data *SignInResultData `json:"data,omitempty"`
+	}
+	JSON400 *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+	JSON500 *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r SignInResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SignInResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateNewUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+	JSON500 *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateNewUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateNewUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -444,6 +655,40 @@ func (c *ClientWithResponses) GetAllCandidateWithResponse(ctx context.Context, r
 	return ParseGetAllCandidateResponse(rsp)
 }
 
+// SignInWithBodyWithResponse request with arbitrary body returning *SignInResponse
+func (c *ClientWithResponses) SignInWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignInResponse, error) {
+	rsp, err := c.SignInWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignInResponse(rsp)
+}
+
+func (c *ClientWithResponses) SignInWithResponse(ctx context.Context, body SignInJSONRequestBody, reqEditors ...RequestEditorFn) (*SignInResponse, error) {
+	rsp, err := c.SignIn(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignInResponse(rsp)
+}
+
+// CreateNewUserWithBodyWithResponse request with arbitrary body returning *CreateNewUserResponse
+func (c *ClientWithResponses) CreateNewUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNewUserResponse, error) {
+	rsp, err := c.CreateNewUserWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateNewUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateNewUserWithResponse(ctx context.Context, body CreateNewUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateNewUserResponse, error) {
+	rsp, err := c.CreateNewUser(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateNewUserResponse(rsp)
+}
+
 // ParseCreateNewCandidateResponse parses an HTTP response from a CreateNewCandidateWithResponse call
 func ParseCreateNewCandidateResponse(rsp *http.Response) (*CreateNewCandidateResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
@@ -458,6 +703,15 @@ func ParseCreateNewCandidateResponse(rsp *http.Response) (*CreateNewCandidateRes
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest struct {
 			Error *ErrorResultData `json:"error,omitempty"`
@@ -486,6 +740,15 @@ func ParseUpdateCandidateInfoResponse(rsp *http.Response) (*UpdateCandidateInfoR
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest struct {
 			Error *ErrorResultData `json:"error,omitempty"`
@@ -522,6 +785,89 @@ func ParseGetAllCandidateResponse(rsp *http.Response) (*GetAllCandidateResponse,
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSignInResponse parses an HTTP response from a SignInWithResponse call
+func ParseSignInResponse(rsp *http.Response) (*SignInResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SignInResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Data *SignInResultData `json:"data,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateNewUserResponse parses an HTTP response from a CreateNewUserWithResponse call
+func ParseCreateNewUserResponse(rsp *http.Response) (*CreateNewUserResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateNewUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest struct {

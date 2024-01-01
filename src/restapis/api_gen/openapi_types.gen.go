@@ -17,6 +17,11 @@ type ErrorResultData struct {
 	Message string `json:"message"`
 }
 
+// SignInResultData defines model for SignInResultData.
+type SignInResultData struct {
+	Token string `json:"token"`
+}
+
 // CandidatesResult defines model for CandidatesResult.
 type CandidatesResult struct {
 	Data *[]CandidatesResultData `json:"data,omitempty"`
@@ -27,10 +32,29 @@ type ErrorResult struct {
 	Error *ErrorResultData `json:"error,omitempty"`
 }
 
+// SignInResult defines model for SignInResult.
+type SignInResult struct {
+	Data *SignInResultData `json:"data,omitempty"`
+}
+
 // CreateNewCandidate defines model for CreateNewCandidate.
 type CreateNewCandidate struct {
 	CandidateDescription string `json:"candidateDescription"`
 	CandidateName        string `json:"candidateName"`
+}
+
+// CreateNewUser defines model for CreateNewUser.
+type CreateNewUser struct {
+	Email    string  `json:"email"`
+	Password string  `json:"password"`
+	RoleID   float32 `json:"roleID"`
+	UserName string  `json:"userName"`
+}
+
+// SignIn defines model for SignIn.
+type SignIn struct {
+	Password string `json:"password"`
+	UserName string `json:"userName"`
 }
 
 // UpdateCandidate defines model for UpdateCandidate.
@@ -45,3 +69,9 @@ type CreateNewCandidateJSONRequestBody CreateNewCandidate
 
 // UpdateCandidateInfoJSONRequestBody defines body for UpdateCandidateInfo for application/json ContentType.
 type UpdateCandidateInfoJSONRequestBody UpdateCandidate
+
+// SignInJSONRequestBody defines body for SignIn for application/json ContentType.
+type SignInJSONRequestBody SignIn
+
+// CreateNewUserJSONRequestBody defines body for CreateNewUser for application/json ContentType.
+type CreateNewUserJSONRequestBody CreateNewUser

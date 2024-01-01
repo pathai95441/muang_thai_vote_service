@@ -56,6 +56,40 @@ paths:
           $ref: "#/components/responses/ErrorResult"
         "500":
           $ref: "#/components/responses/ErrorResult"
+  /user:
+    post:
+      summary: Create new User
+      operationId: CreateNewUser
+      tags:
+        - user
+      requestBody:
+        $ref: "#/components/requestBodies/CreateNewUser"
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/ErrorResult"
+        "500":
+          $ref: "#/components/responses/ErrorResult"
+  /sign_in:
+    post:
+      summary: SignIn
+      operationId: SignIn
+      tags:
+        - auth
+      requestBody:
+        $ref: "#/components/requestBodies/SignIn"
+      responses:
+        "200":
+          $ref: "#/components/responses/SignInResult"
+        "400":
+          $ref: "#/components/responses/ErrorResult"
+        "500":
+          $ref: "#/components/responses/ErrorResult"
 components:
   responses:
     ErrorResult:
@@ -68,7 +102,7 @@ components:
               error:
                 $ref: "#/components/schemas/ErrorResultData"
     CandidatesResult:
-      description: Error
+      description: CandidatesResult
       content:
         application/json:
           schema:
@@ -78,6 +112,15 @@ components:
                 type: array
                 items: 
                   $ref: "#/components/schemas/CandidatesResultData"
+    SignInResult:
+      description: SignInResult
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: "#/components/schemas/SignInResultData"
   requestBodies:
     CreateNewCandidate:
         required: true
@@ -108,6 +151,40 @@ components:
                   type: string
                 candidateDescription:
                   type: string
+    CreateNewUser:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userName
+                - password
+                - email
+                - roleID
+              properties:
+                userName:
+                  type: string
+                password:
+                  type: string
+                email:
+                  type: string
+                roleID:
+                  type: number
+    SignIn:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userName
+                - password
+              properties:
+                userName:
+                  type: string
+                password:
+                  type: string
   schemas:
     CandidatesResultData:
       type: object
@@ -125,6 +202,13 @@ components:
           type: string
         voteScore:
           type: number
+    SignInResultData:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
     ErrorResultData:
       type: object
       required:

@@ -4,9 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 
+	auth "github.com/pathai95441/muang_thai_vote_service/src/authorization"
 	"github.com/pathai95441/muang_thai_vote_service/src/config"
 	candidate_domain "github.com/pathai95441/muang_thai_vote_service/src/domain/candidate"
+	user_domain "github.com/pathai95441/muang_thai_vote_service/src/domain/user"
 	"github.com/pathai95441/muang_thai_vote_service/src/repositories/candidate"
+	"github.com/pathai95441/muang_thai_vote_service/src/repositories/user"
 	"github.com/pathai95441/muang_thai_vote_service/src/services/commands"
 	"github.com/pathai95441/muang_thai_vote_service/src/services/queries"
 
@@ -16,12 +19,6 @@ import (
 
 var serverApp Application
 var validate *validator.Validate
-
-func initRepositories(db *sql.DB) Repositories {
-	return Repositories{
-		CandidateRepo: candidate.NewRepository(db),
-	}
-}
 
 func initDatabase(dbConfig config.DBConfig) *sql.DB {
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=UTC",
@@ -33,7 +30,6 @@ func initDatabase(dbConfig config.DBConfig) *sql.DB {
 	db, err := sql.Open(dbConfig.Driver, dsn)
 
 	if err != nil {
-		println("tang888")
 		println(err.Error())
 		panic(err)
 	}
@@ -41,9 +37,17 @@ func initDatabase(dbConfig config.DBConfig) *sql.DB {
 	return db
 }
 
+func initRepositories(db *sql.DB) Repositories {
+	return Repositories{
+		CandidateRepo: candidate.NewRepository(db),
+		UserRepo:      user.NewRepository(db),
+	}
+}
+
 func initDomain(repositories Repositories) Domain {
 	return Domain{
 		CandidateDomain: candidate_domain.NewCandidateDomain(repositories.CandidateRepo),
+		UserDomain:      user_domain.NewUserDomain(repositories.UserRepo),
 	}
 }
 
@@ -57,6 +61,7 @@ func initCommands(domain Domain) Commands {
 	return Commands{
 		AddNewCandidate:     commands.NewAddNewCandidateHandler(domain.CandidateDomain),
 		UpdateCandidateInfo: commands.NewUpdateCandidateInfoHandler(domain.CandidateDomain),
+		CreateNewUser:       commands.NewCreateNewUserHandler(domain.UserDomain),
 	}
 }
 
@@ -73,7 +78,8 @@ func initApplication() {
 	}
 
 	serverApp = Application{
-		Commands: commandHandlers,
-		Queries:  queriesCmd,
+		Commands:      commandHandlers,
+		Queries:       queriesCmd,
+		Authorization: auth.NewAuthHandler(repositories.UserRepo),
 	}
 }

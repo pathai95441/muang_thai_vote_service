@@ -12,6 +12,7 @@ import (
 	"github.com/pathai95441/muang_thai_vote_service/src/services/commands"
 )
 
+// Candidate
 func CreateNewCandidate(c echo.Context) error {
 	b, err := io.ReadAll(c.Request().Body)
 	if err != nil {
@@ -136,4 +137,92 @@ func UpdateCandidateInfo(c echo.Context) error {
 	}
 
 	return c.String(http.StatusOK, "Update Candidate info Success")
+}
+
+// User
+func CreateNewUser(c echo.Context) error {
+	b, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, api_gen.ErrorResult{
+			Error: &api_gen.ErrorResultData{
+				Code:    consts.InternalServerError,
+				Message: err.Error(),
+			},
+		})
+	}
+	var r api_gen.CreateNewUser
+	if err := json.Unmarshal(b, &r); err != nil {
+		return c.JSON(http.StatusBadRequest, api_gen.ErrorResult{
+			Error: &api_gen.ErrorResultData{
+				Code:    consts.BadRequest,
+				Message: err.Error(),
+			},
+		})
+	}
+
+	payload := commands.CreateNewUserRequest{
+		UserName: r.UserName,
+		Password: r.Password,
+		Email:    r.Email,
+		RoleID:   int(r.RoleID),
+	}
+
+	err = validate.Struct(payload)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, api_gen.ErrorResult{
+			Error: &api_gen.ErrorResultData{
+				Code:    consts.BadRequest,
+				Message: err.Error(),
+			},
+		})
+	}
+
+	err = serverApp.Commands.CreateNewUser.Handle(context.Background(), payload)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, api_gen.ErrorResult{
+			Error: &api_gen.ErrorResultData{
+				Code:    consts.InternalServerError,
+				Message: err.Error(),
+			},
+		})
+	}
+
+	return c.String(http.StatusOK, "Create User Success")
+}
+
+func SignIn(c echo.Context) error {
+	b, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, api_gen.ErrorResult{
+			Error: &api_gen.ErrorResultData{
+				Code:    consts.InternalServerError,
+				Message: err.Error(),
+			},
+		})
+	}
+	var r api_gen.SignIn
+	if err := json.Unmarshal(b, &r); err != nil {
+		return c.JSON(http.StatusBadRequest, api_gen.ErrorResult{
+			Error: &api_gen.ErrorResultData{
+				Code:    consts.BadRequest,
+				Message: err.Error(),
+			},
+		})
+	}
+
+	token, err := serverApp.Authorization.SignIn(context.Background(), r.UserName, r.Password)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, api_gen.ErrorResult{
+			Error: &api_gen.ErrorResultData{
+				Code:    consts.InternalServerError,
+				Message: err.Error(),
+			},
+		})
+	}
+
+	return c.JSON(http.StatusInternalServerError, api_gen.SignInResult{
+		Data: &api_gen.SignInResultData{
+			Token: *token,
+		},
+	})
 }

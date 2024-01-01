@@ -18,6 +18,12 @@ type ServerInterface interface {
 	// Get All Candidate
 	// (POST /candidates)
 	GetAllCandidate(ctx echo.Context) error
+	// SignIn
+	// (POST /sign_in)
+	SignIn(ctx echo.Context) error
+	// Create new User
+	// (POST /user)
+	CreateNewUser(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -52,6 +58,24 @@ func (w *ServerInterfaceWrapper) GetAllCandidate(ctx echo.Context) error {
 	return err
 }
 
+// SignIn converts echo context to params.
+func (w *ServerInterfaceWrapper) SignIn(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.SignIn(ctx)
+	return err
+}
+
+// CreateNewUser converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateNewUser(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.CreateNewUser(ctx)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -83,5 +107,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/candidate", wrapper.CreateNewCandidate)
 	router.PUT(baseURL+"/candidate", wrapper.UpdateCandidateInfo)
 	router.POST(baseURL+"/candidates", wrapper.GetAllCandidate)
+	router.POST(baseURL+"/sign_in", wrapper.SignIn)
+	router.POST(baseURL+"/user", wrapper.CreateNewUser)
 
 }

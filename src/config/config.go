@@ -3,7 +3,7 @@ package config
 type Config struct {
 	DBConfig     DBConfig
 	MaxRetiresDB int
-	SecretKey    string
+	SecretKey    []byte
 }
 
 type DBConfig struct {
@@ -24,6 +24,6 @@ var CurrentConfig = Config{
 		Port:     3306,
 		Database: "vote",
 	},
-	SecretKey:    "MTL_SECRET_KEY",
+	SecretKey:    []byte("MTL_SECRET_KEY"),
 	MaxRetiresDB: 3,
 }
