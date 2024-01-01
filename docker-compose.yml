@@ -8,7 +8,7 @@ services:
     ports:
       - '3306:3306'
     environment:
-      MYSQL_DATABASE: accounting
+      MYSQL_DATABASE: vote
       MYSQL_ROOT_PASSWORD: password
     volumes:
       - db_data:/var/lib/mysql
@@ -31,7 +31,7 @@ services:
   #     DB_PORT: 3306
   #     DB_USERNAME: root
   #     DB_PASSWORD: password
-  #     DB_DATABASE: accounting
+  #     DB_DATABASE: vote
   #     RABBITMQ_HOST: rabbitmq
   #     RABBITMQ_PORT: 5672
   #     RABBITMQ_USERNAME: guest
@@ -62,7 +62,7 @@ services:
       DB_PORT: 3306
       DB_USERNAME: root
       DB_PASSWORD: password
-      DB_DATABASE: accounting
+      DB_DATABASE: vote
       DBMATE_SCHEMA_FILE: /data/schema.sql
       DBMATE_MIGRATIONS_DIR: /migrations
     volumes:

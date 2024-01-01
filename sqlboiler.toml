@@ -10,4 +10,4 @@ no-tests = false
   user    = "root"
   pass    = "password"
   sslmode = "false"
-  whitelist = ["vote"]
+
