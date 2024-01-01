@@ -106,10 +106,20 @@ type ClientInterface interface {
 
 	SignIn(ctx context.Context, body SignInJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// UnVoteCandidate request with any body
+	UnVoteCandidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UnVoteCandidate(ctx context.Context, body UnVoteCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateNewUser request with any body
 	CreateNewUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateNewUser(ctx context.Context, body CreateNewUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// VoteCandidate request with any body
+	VoteCandidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	VoteCandidate(ctx context.Context, body VoteCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) CreateNewCandidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -196,6 +206,30 @@ func (c *Client) SignIn(ctx context.Context, body SignInJSONRequestBody, reqEdit
 	return c.Client.Do(req)
 }
 
+func (c *Client) UnVoteCandidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUnVoteCandidateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UnVoteCandidate(ctx context.Context, body UnVoteCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUnVoteCandidateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) CreateNewUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateNewUserRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -210,6 +244,30 @@ func (c *Client) CreateNewUserWithBody(ctx context.Context, contentType string, 
 
 func (c *Client) CreateNewUser(ctx context.Context, body CreateNewUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateNewUserRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) VoteCandidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewVoteCandidateRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) VoteCandidate(ctx context.Context, body VoteCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewVoteCandidateRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -367,6 +425,46 @@ func NewSignInRequestWithBody(server string, contentType string, body io.Reader)
 	return req, nil
 }
 
+// NewUnVoteCandidateRequest calls the generic UnVoteCandidate builder with application/json body
+func NewUnVoteCandidateRequest(server string, body UnVoteCandidateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUnVoteCandidateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUnVoteCandidateRequestWithBody generates requests for UnVoteCandidate with any type of body
+func NewUnVoteCandidateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/un_vote_candidate")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewCreateNewUserRequest calls the generic CreateNewUser builder with application/json body
 func NewCreateNewUserRequest(server string, body CreateNewUserJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -388,6 +486,46 @@ func NewCreateNewUserRequestWithBody(server string, contentType string, body io.
 	}
 
 	operationPath := fmt.Sprintf("/user")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewVoteCandidateRequest calls the generic VoteCandidate builder with application/json body
+func NewVoteCandidateRequest(server string, body VoteCandidateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewVoteCandidateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewVoteCandidateRequestWithBody generates requests for VoteCandidate with any type of body
+func NewVoteCandidateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/vote_candidate")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -468,10 +606,20 @@ type ClientWithResponsesInterface interface {
 
 	SignInWithResponse(ctx context.Context, body SignInJSONRequestBody, reqEditors ...RequestEditorFn) (*SignInResponse, error)
 
+	// UnVoteCandidate request with any body
+	UnVoteCandidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UnVoteCandidateResponse, error)
+
+	UnVoteCandidateWithResponse(ctx context.Context, body UnVoteCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*UnVoteCandidateResponse, error)
+
 	// CreateNewUser request with any body
 	CreateNewUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNewUserResponse, error)
 
 	CreateNewUserWithResponse(ctx context.Context, body CreateNewUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateNewUserResponse, error)
+
+	// VoteCandidate request with any body
+	VoteCandidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VoteCandidateResponse, error)
+
+	VoteCandidateWithResponse(ctx context.Context, body VoteCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*VoteCandidateResponse, error)
 }
 
 type CreateNewCandidateResponse struct {
@@ -585,6 +733,33 @@ func (r SignInResponse) StatusCode() int {
 	return 0
 }
 
+type UnVoteCandidateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+	JSON500 *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r UnVoteCandidateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UnVoteCandidateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type CreateNewUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -606,6 +781,33 @@ func (r CreateNewUserResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateNewUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type VoteCandidateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+	JSON500 *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r VoteCandidateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r VoteCandidateResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -672,6 +874,23 @@ func (c *ClientWithResponses) SignInWithResponse(ctx context.Context, body SignI
 	return ParseSignInResponse(rsp)
 }
 
+// UnVoteCandidateWithBodyWithResponse request with arbitrary body returning *UnVoteCandidateResponse
+func (c *ClientWithResponses) UnVoteCandidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UnVoteCandidateResponse, error) {
+	rsp, err := c.UnVoteCandidateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUnVoteCandidateResponse(rsp)
+}
+
+func (c *ClientWithResponses) UnVoteCandidateWithResponse(ctx context.Context, body UnVoteCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*UnVoteCandidateResponse, error) {
+	rsp, err := c.UnVoteCandidate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUnVoteCandidateResponse(rsp)
+}
+
 // CreateNewUserWithBodyWithResponse request with arbitrary body returning *CreateNewUserResponse
 func (c *ClientWithResponses) CreateNewUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNewUserResponse, error) {
 	rsp, err := c.CreateNewUserWithBody(ctx, contentType, body, reqEditors...)
@@ -687,6 +906,23 @@ func (c *ClientWithResponses) CreateNewUserWithResponse(ctx context.Context, bod
 		return nil, err
 	}
 	return ParseCreateNewUserResponse(rsp)
+}
+
+// VoteCandidateWithBodyWithResponse request with arbitrary body returning *VoteCandidateResponse
+func (c *ClientWithResponses) VoteCandidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VoteCandidateResponse, error) {
+	rsp, err := c.VoteCandidateWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseVoteCandidateResponse(rsp)
+}
+
+func (c *ClientWithResponses) VoteCandidateWithResponse(ctx context.Context, body VoteCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*VoteCandidateResponse, error) {
+	rsp, err := c.VoteCandidate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseVoteCandidateResponse(rsp)
 }
 
 // ParseCreateNewCandidateResponse parses an HTTP response from a CreateNewCandidateWithResponse call
@@ -846,6 +1082,43 @@ func ParseSignInResponse(rsp *http.Response) (*SignInResponse, error) {
 	return response, nil
 }
 
+// ParseUnVoteCandidateResponse parses an HTTP response from a UnVoteCandidateWithResponse call
+func ParseUnVoteCandidateResponse(rsp *http.Response) (*UnVoteCandidateResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UnVoteCandidateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseCreateNewUserResponse parses an HTTP response from a CreateNewUserWithResponse call
 func ParseCreateNewUserResponse(rsp *http.Response) (*CreateNewUserResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
@@ -855,6 +1128,43 @@ func ParseCreateNewUserResponse(rsp *http.Response) (*CreateNewUserResponse, err
 	}
 
 	response := &CreateNewUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseVoteCandidateResponse parses an HTTP response from a VoteCandidateWithResponse call
+func ParseVoteCandidateResponse(rsp *http.Response) (*VoteCandidateResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &VoteCandidateResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

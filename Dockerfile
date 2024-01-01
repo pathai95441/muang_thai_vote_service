@@ -38,6 +38,7 @@ COPY .netrc /root/.netrc
 COPY . /app
 RUN go mod download \
     && go mod verify
+RUN go mod vendor
 
 RUN go build -o vote_service -a ./cmd/vote_service
 

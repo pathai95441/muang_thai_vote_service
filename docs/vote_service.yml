@@ -90,6 +90,44 @@ paths:
           $ref: "#/components/responses/ErrorResult"
         "500":
           $ref: "#/components/responses/ErrorResult"
+  /vote_candidate:
+    post:
+      summary: VoteCandidate
+      operationId: VoteCandidate
+      tags:
+        - vote
+      requestBody:
+        $ref: "#/components/requestBodies/VoteCandidate"
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/ErrorResult"
+        "500":
+          $ref: "#/components/responses/ErrorResult"
+  /un_vote_candidate:
+    post:
+      summary: UnVoteCandidate
+      operationId: UnVoteCandidate
+      tags:
+        - vote
+      requestBody:
+        $ref: "#/components/requestBodies/VoteCandidate"
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/ErrorResult"
+        "500":
+          $ref: "#/components/responses/ErrorResult"
 components:
   responses:
     ErrorResult:
@@ -184,6 +222,17 @@ components:
                 userName:
                   type: string
                 password:
+                  type: string
+    VoteCandidate:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - candidateID
+              properties:
+                candidateID:
                   type: string
   schemas:
     CandidatesResultData:

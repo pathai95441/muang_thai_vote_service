@@ -35,12 +35,11 @@ func (m *MockIAuthHandler) EXPECT() *MockIAuthHandlerMockRecorder {
 }
 
 // Authorization mocks base method.
-func (m *MockIAuthHandler) Authorization(ctx context.Context, tokenString string, Permission []int) (bool, error) {
+func (m *MockIAuthHandler) Authorization(ctx context.Context, tokenString string, Permission []int) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Authorization", ctx, tokenString, Permission)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Authorization indicates an expected call of Authorization.

@@ -21,9 +21,15 @@ type ServerInterface interface {
 	// SignIn
 	// (POST /sign_in)
 	SignIn(ctx echo.Context) error
+	// UnVoteCandidate
+	// (POST /un_vote_candidate)
+	UnVoteCandidate(ctx echo.Context) error
 	// Create new User
 	// (POST /user)
 	CreateNewUser(ctx echo.Context) error
+	// VoteCandidate
+	// (POST /vote_candidate)
+	VoteCandidate(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -67,12 +73,30 @@ func (w *ServerInterfaceWrapper) SignIn(ctx echo.Context) error {
 	return err
 }
 
+// UnVoteCandidate converts echo context to params.
+func (w *ServerInterfaceWrapper) UnVoteCandidate(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.UnVoteCandidate(ctx)
+	return err
+}
+
 // CreateNewUser converts echo context to params.
 func (w *ServerInterfaceWrapper) CreateNewUser(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.CreateNewUser(ctx)
+	return err
+}
+
+// VoteCandidate converts echo context to params.
+func (w *ServerInterfaceWrapper) VoteCandidate(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.VoteCandidate(ctx)
 	return err
 }
 
@@ -108,6 +132,8 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.PUT(baseURL+"/candidate", wrapper.UpdateCandidateInfo)
 	router.POST(baseURL+"/candidates", wrapper.GetAllCandidate)
 	router.POST(baseURL+"/sign_in", wrapper.SignIn)
+	router.POST(baseURL+"/un_vote_candidate", wrapper.UnVoteCandidate)
 	router.POST(baseURL+"/user", wrapper.CreateNewUser)
+	router.POST(baseURL+"/vote_candidate", wrapper.VoteCandidate)
 
 }
