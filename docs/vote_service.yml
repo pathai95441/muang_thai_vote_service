@@ -8,51 +8,130 @@ servers:
       hostname:
         default: localhost:8080
 paths:
-  /list_candidate_vote:
-    get:
-      summary: Get List candidate vote
-      operationId: getListCandidateVote
+  /candidates:
+    post:
+      summary: Get All Candidate
+      operationId: GetAllCandidate
       tags:
-        - candidate vote
+        - candidate
       responses:
-        '200':
+        "200":
+          $ref: "#/components/responses/CandidatesResult"
+        "500":
+          $ref: "#/components/responses/ErrorResult"
+  /candidate:
+    post:
+      summary: Create new candidate
+      operationId: CreateNewCandidate
+      tags:
+        - candidate
+      requestBody:
+        $ref: "#/components/requestBodies/CreateNewCandidate"
+      responses:
+        "200":
           description: OK
           content:
             text/plain:
               schema:
                 type: string
+        "400":
+          $ref: "#/components/responses/ErrorResult"
+        "500":
+          $ref: "#/components/responses/ErrorResult"
+    put:
+      summary: Update Candidate Info
+      operationId: Update Candidate info
+      tags:
+        - candidate
+      requestBody:
+        $ref: "#/components/requestBodies/UpdateCandidate"
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/ErrorResult"
+        "500":
+          $ref: "#/components/responses/ErrorResult"
 components:
+  responses:
+    ErrorResult:
+      description: Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: "#/components/schemas/ErrorResultData"
+    CandidatesResult:
+      description: Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items: 
+                  $ref: "#/components/schemas/CandidatesResultData"
+  requestBodies:
+    CreateNewCandidate:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - candidateName
+                - candidateDescription
+              properties:
+                candidateName:
+                  type: string
+                candidateDescription:
+                  type: string
+    UpdateCandidate:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - candidateID
+              properties:
+                candidateID:
+                  type: string
+                candidateName:
+                  type: string
+                candidateDescription:
+                  type: string
   schemas:
-    AccountCreationResult:
+    CandidatesResultData:
       type: object
       required:
-        - accountId
+        - candidateID
+        - candidateName
+        - candidateDescription
+        - voteScore
       properties:
-        accountId:
+        candidateID:
           type: string
-          format: uuid
-    AccountCreation:
+        candidateName:
+          type: string
+        candidateDescription:
+          type: string
+        voteScore:
+          type: number
+    ErrorResultData:
       type: object
       required:
-        - firstnameTh
-        - lastnameTh
+        - code
+        - message
       properties:
-        firstnameTh:
+        code:
           type: string
-        lastnameTh:
-          type: string
-    Account:
-      type: object
-      required:
-        - id
-        - userId
-        - bankAccountNo
-      properties:
-        id:
-          type: string
-          format: uuid
-        userId:
-          type: string
-          format: uuid
-        bankAccountNo:
+        message:
           type: string

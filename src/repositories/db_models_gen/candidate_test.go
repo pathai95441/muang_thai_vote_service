@@ -722,7 +722,7 @@ func testCandidatesSelect(t *testing.T) {
 }
 
 var (
-	candidateDBTypes = map[string]string{`ID`: `varchar`, `CandidateName`: `varchar`, `CandidateDescription`: `varchar`, `VoteScore`: `varchar`, `CreatedAt`: `timestamp`, `CreatedBy`: `varchar`, `UpdatedAt`: `timestamp`, `UpdatedBy`: `varchar`, `DeletedAt`: `timestamp`, `DeletedBy`: `varchar`}
+	candidateDBTypes = map[string]string{`ID`: `varchar`, `CandidateName`: `varchar`, `CandidateDescription`: `varchar`, `VoteScore`: `int`, `CreatedAt`: `timestamp`, `CreatedBy`: `varchar`, `UpdatedAt`: `timestamp`, `UpdatedBy`: `varchar`, `DeletedAt`: `timestamp`, `DeletedBy`: `varchar`}
 	_                = bytes.MinRead
 )
 

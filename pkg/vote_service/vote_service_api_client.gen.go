@@ -4,8 +4,11 @@
 package vote_service
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -85,12 +88,22 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// GetConfig request
-	GetConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateNewCandidate request with any body
+	CreateNewCandidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateNewCandidate(ctx context.Context, body CreateNewCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCandidateInfo request with any body
+	UpdateCandidateInfoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateCandidateInfo(ctx context.Context, body UpdateCandidateInfoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAllCandidate request
+	GetAllCandidate(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) GetConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetConfigRequest(c.Server)
+func (c *Client) CreateNewCandidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateNewCandidateRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +114,67 @@ func (c *Client) GetConfig(ctx context.Context, reqEditors ...RequestEditorFn) (
 	return c.Client.Do(req)
 }
 
-// NewGetConfigRequest generates requests for GetConfig
-func NewGetConfigRequest(server string) (*http.Request, error) {
+func (c *Client) CreateNewCandidate(ctx context.Context, body CreateNewCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateNewCandidateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateCandidateInfoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCandidateInfoRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateCandidateInfo(ctx context.Context, body UpdateCandidateInfoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCandidateInfoRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAllCandidate(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAllCandidateRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// NewCreateNewCandidateRequest calls the generic CreateNewCandidate builder with application/json body
+func NewCreateNewCandidateRequest(server string, body CreateNewCandidateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateNewCandidateRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateNewCandidateRequestWithBody generates requests for CreateNewCandidate with any type of body
+func NewCreateNewCandidateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -110,7 +182,7 @@ func NewGetConfigRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/list_vote_candidate")
+	operationPath := fmt.Sprintf("/candidate")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -120,7 +192,76 @@ func NewGetConfigRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewUpdateCandidateInfoRequest calls the generic UpdateCandidateInfo builder with application/json body
+func NewUpdateCandidateInfoRequest(server string, body UpdateCandidateInfoJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateCandidateInfoRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpdateCandidateInfoRequestWithBody generates requests for UpdateCandidateInfo with any type of body
+func NewUpdateCandidateInfoRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/candidate")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetAllCandidateRequest generates requests for GetAllCandidate
+func NewGetAllCandidateRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/candidates")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -171,17 +312,30 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// GetConfig request
-	GetConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetConfigResponse, error)
+	// CreateNewCandidate request with any body
+	CreateNewCandidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNewCandidateResponse, error)
+
+	CreateNewCandidateWithResponse(ctx context.Context, body CreateNewCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateNewCandidateResponse, error)
+
+	// UpdateCandidateInfo request with any body
+	UpdateCandidateInfoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCandidateInfoResponse, error)
+
+	UpdateCandidateInfoWithResponse(ctx context.Context, body UpdateCandidateInfoJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCandidateInfoResponse, error)
+
+	// GetAllCandidate request
+	GetAllCandidateWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAllCandidateResponse, error)
 }
 
-type GetConfigResponse struct {
+type CreateNewCandidateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON500      *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
 }
 
 // Status returns HTTPResponse.Status
-func (r GetConfigResponse) Status() string {
+func (r CreateNewCandidateResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -189,33 +343,195 @@ func (r GetConfigResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetConfigResponse) StatusCode() int {
+func (r CreateNewCandidateResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-// GetConfigWithResponse request returning *GetConfigResponse
-func (c *ClientWithResponses) GetConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetConfigResponse, error) {
-	rsp, err := c.GetConfig(ctx, reqEditors...)
+type UpdateCandidateInfoResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON500      *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateCandidateInfoResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateCandidateInfoResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetAllCandidateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Data *[]CandidatesResultData `json:"data,omitempty"`
+	}
+	JSON500 *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAllCandidateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAllCandidateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// CreateNewCandidateWithBodyWithResponse request with arbitrary body returning *CreateNewCandidateResponse
+func (c *ClientWithResponses) CreateNewCandidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNewCandidateResponse, error) {
+	rsp, err := c.CreateNewCandidateWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetConfigResponse(rsp)
+	return ParseCreateNewCandidateResponse(rsp)
 }
 
-// ParseGetConfigResponse parses an HTTP response from a GetConfigWithResponse call
-func ParseGetConfigResponse(rsp *http.Response) (*GetConfigResponse, error) {
+func (c *ClientWithResponses) CreateNewCandidateWithResponse(ctx context.Context, body CreateNewCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateNewCandidateResponse, error) {
+	rsp, err := c.CreateNewCandidate(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateNewCandidateResponse(rsp)
+}
+
+// UpdateCandidateInfoWithBodyWithResponse request with arbitrary body returning *UpdateCandidateInfoResponse
+func (c *ClientWithResponses) UpdateCandidateInfoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCandidateInfoResponse, error) {
+	rsp, err := c.UpdateCandidateInfoWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCandidateInfoResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateCandidateInfoWithResponse(ctx context.Context, body UpdateCandidateInfoJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCandidateInfoResponse, error) {
+	rsp, err := c.UpdateCandidateInfo(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCandidateInfoResponse(rsp)
+}
+
+// GetAllCandidateWithResponse request returning *GetAllCandidateResponse
+func (c *ClientWithResponses) GetAllCandidateWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAllCandidateResponse, error) {
+	rsp, err := c.GetAllCandidate(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAllCandidateResponse(rsp)
+}
+
+// ParseCreateNewCandidateResponse parses an HTTP response from a CreateNewCandidateWithResponse call
+func ParseCreateNewCandidateResponse(rsp *http.Response) (*CreateNewCandidateResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetConfigResponse{
+	response := &CreateNewCandidateResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateCandidateInfoResponse parses an HTTP response from a UpdateCandidateInfoWithResponse call
+func ParseUpdateCandidateInfoResponse(rsp *http.Response) (*UpdateCandidateInfoResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateCandidateInfoResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAllCandidateResponse parses an HTTP response from a GetAllCandidateWithResponse call
+func ParseGetAllCandidateResponse(rsp *http.Response) (*GetAllCandidateResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAllCandidateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Data *[]CandidatesResultData `json:"data,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
 	}
 
 	return response, nil

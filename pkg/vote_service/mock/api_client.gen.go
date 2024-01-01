@@ -6,6 +6,7 @@ package mock_vote_service
 
 import (
 	context "context"
+	io "io"
 	http "net/http"
 	reflect "reflect"
 
@@ -74,24 +75,104 @@ func (m *MockClientInterface) EXPECT() *MockClientInterfaceMockRecorder {
 	return m.recorder
 }
 
-// GetConfig mocks base method.
-func (m *MockClientInterface) GetConfig(ctx context.Context, reqEditors ...vote_service.RequestEditorFn) (*http.Response, error) {
+// CreateNewCandidate mocks base method.
+func (m *MockClientInterface) CreateNewCandidate(ctx context.Context, body vote_service.CreateNewCandidateJSONRequestBody, reqEditors ...vote_service.RequestEditorFn) (*http.Response, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx}
+	varargs := []interface{}{ctx, body}
 	for _, a := range reqEditors {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "GetConfig", varargs...)
+	ret := m.ctrl.Call(m, "CreateNewCandidate", varargs...)
 	ret0, _ := ret[0].(*http.Response)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetConfig indicates an expected call of GetConfig.
-func (mr *MockClientInterfaceMockRecorder) GetConfig(ctx interface{}, reqEditors ...interface{}) *gomock.Call {
+// CreateNewCandidate indicates an expected call of CreateNewCandidate.
+func (mr *MockClientInterfaceMockRecorder) CreateNewCandidate(ctx, body interface{}, reqEditors ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewCandidate", reflect.TypeOf((*MockClientInterface)(nil).CreateNewCandidate), varargs...)
+}
+
+// CreateNewCandidateWithBody mocks base method.
+func (m *MockClientInterface) CreateNewCandidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...vote_service.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, contentType, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateNewCandidateWithBody", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateNewCandidateWithBody indicates an expected call of CreateNewCandidateWithBody.
+func (mr *MockClientInterfaceMockRecorder) CreateNewCandidateWithBody(ctx, contentType, body interface{}, reqEditors ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, contentType, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewCandidateWithBody", reflect.TypeOf((*MockClientInterface)(nil).CreateNewCandidateWithBody), varargs...)
+}
+
+// GetAllCandidate mocks base method.
+func (m *MockClientInterface) GetAllCandidate(ctx context.Context, reqEditors ...vote_service.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetAllCandidate", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllCandidate indicates an expected call of GetAllCandidate.
+func (mr *MockClientInterfaceMockRecorder) GetAllCandidate(ctx interface{}, reqEditors ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx}, reqEditors...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetConfig", reflect.TypeOf((*MockClientInterface)(nil).GetConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCandidate", reflect.TypeOf((*MockClientInterface)(nil).GetAllCandidate), varargs...)
+}
+
+// UpdateCandidateInfo mocks base method.
+func (m *MockClientInterface) UpdateCandidateInfo(ctx context.Context, body vote_service.UpdateCandidateInfoJSONRequestBody, reqEditors ...vote_service.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateCandidateInfo", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateCandidateInfo indicates an expected call of UpdateCandidateInfo.
+func (mr *MockClientInterfaceMockRecorder) UpdateCandidateInfo(ctx, body interface{}, reqEditors ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCandidateInfo", reflect.TypeOf((*MockClientInterface)(nil).UpdateCandidateInfo), varargs...)
+}
+
+// UpdateCandidateInfoWithBody mocks base method.
+func (m *MockClientInterface) UpdateCandidateInfoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...vote_service.RequestEditorFn) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, contentType, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateCandidateInfoWithBody", varargs...)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateCandidateInfoWithBody indicates an expected call of UpdateCandidateInfoWithBody.
+func (mr *MockClientInterfaceMockRecorder) UpdateCandidateInfoWithBody(ctx, contentType, body interface{}, reqEditors ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, contentType, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCandidateInfoWithBody", reflect.TypeOf((*MockClientInterface)(nil).UpdateCandidateInfoWithBody), varargs...)
 }
 
 // MockClientWithResponsesInterface is a mock of ClientWithResponsesInterface interface.
@@ -117,22 +198,102 @@ func (m *MockClientWithResponsesInterface) EXPECT() *MockClientWithResponsesInte
 	return m.recorder
 }
 
-// GetConfigWithResponse mocks base method.
-func (m *MockClientWithResponsesInterface) GetConfigWithResponse(ctx context.Context, reqEditors ...vote_service.RequestEditorFn) (*vote_service.GetConfigResponse, error) {
+// CreateNewCandidateWithBodyWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) CreateNewCandidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...vote_service.RequestEditorFn) (*vote_service.CreateNewCandidateResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, contentType, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateNewCandidateWithBodyWithResponse", varargs...)
+	ret0, _ := ret[0].(*vote_service.CreateNewCandidateResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateNewCandidateWithBodyWithResponse indicates an expected call of CreateNewCandidateWithBodyWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) CreateNewCandidateWithBodyWithResponse(ctx, contentType, body interface{}, reqEditors ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, contentType, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewCandidateWithBodyWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).CreateNewCandidateWithBodyWithResponse), varargs...)
+}
+
+// CreateNewCandidateWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) CreateNewCandidateWithResponse(ctx context.Context, body vote_service.CreateNewCandidateJSONRequestBody, reqEditors ...vote_service.RequestEditorFn) (*vote_service.CreateNewCandidateResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateNewCandidateWithResponse", varargs...)
+	ret0, _ := ret[0].(*vote_service.CreateNewCandidateResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateNewCandidateWithResponse indicates an expected call of CreateNewCandidateWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) CreateNewCandidateWithResponse(ctx, body interface{}, reqEditors ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewCandidateWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).CreateNewCandidateWithResponse), varargs...)
+}
+
+// GetAllCandidateWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) GetAllCandidateWithResponse(ctx context.Context, reqEditors ...vote_service.RequestEditorFn) (*vote_service.GetAllCandidateResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx}
 	for _, a := range reqEditors {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "GetConfigWithResponse", varargs...)
-	ret0, _ := ret[0].(*vote_service.GetConfigResponse)
+	ret := m.ctrl.Call(m, "GetAllCandidateWithResponse", varargs...)
+	ret0, _ := ret[0].(*vote_service.GetAllCandidateResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetConfigWithResponse indicates an expected call of GetConfigWithResponse.
-func (mr *MockClientWithResponsesInterfaceMockRecorder) GetConfigWithResponse(ctx interface{}, reqEditors ...interface{}) *gomock.Call {
+// GetAllCandidateWithResponse indicates an expected call of GetAllCandidateWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) GetAllCandidateWithResponse(ctx interface{}, reqEditors ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx}, reqEditors...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetConfigWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).GetConfigWithResponse), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCandidateWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).GetAllCandidateWithResponse), varargs...)
+}
+
+// UpdateCandidateInfoWithBodyWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) UpdateCandidateInfoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...vote_service.RequestEditorFn) (*vote_service.UpdateCandidateInfoResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, contentType, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateCandidateInfoWithBodyWithResponse", varargs...)
+	ret0, _ := ret[0].(*vote_service.UpdateCandidateInfoResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateCandidateInfoWithBodyWithResponse indicates an expected call of UpdateCandidateInfoWithBodyWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) UpdateCandidateInfoWithBodyWithResponse(ctx, contentType, body interface{}, reqEditors ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, contentType, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCandidateInfoWithBodyWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).UpdateCandidateInfoWithBodyWithResponse), varargs...)
+}
+
+// UpdateCandidateInfoWithResponse mocks base method.
+func (m *MockClientWithResponsesInterface) UpdateCandidateInfoWithResponse(ctx context.Context, body vote_service.UpdateCandidateInfoJSONRequestBody, reqEditors ...vote_service.RequestEditorFn) (*vote_service.UpdateCandidateInfoResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, body}
+	for _, a := range reqEditors {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateCandidateInfoWithResponse", varargs...)
+	ret0, _ := ret[0].(*vote_service.UpdateCandidateInfoResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateCandidateInfoWithResponse indicates an expected call of UpdateCandidateInfoWithResponse.
+func (mr *MockClientWithResponsesInterfaceMockRecorder) UpdateCandidateInfoWithResponse(ctx, body interface{}, reqEditors ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, body}, reqEditors...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCandidateInfoWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).UpdateCandidateInfoWithResponse), varargs...)
 }

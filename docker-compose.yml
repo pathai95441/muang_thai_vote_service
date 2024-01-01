@@ -12,46 +12,42 @@ services:
       MYSQL_ROOT_PASSWORD: password
     volumes:
       - db_data:/var/lib/mysql
-  # vote_service:
-  #   build:
-  #     context: .
-  #     dockerfile: ./Dockerfile
-  #     target: dev
-  #   restart: unless-stopped
-  #   ports:
-  #     - '8080:8080'
-  #     - '2345:2345'
-  #   environment:
-  #     GORACE: "log_path=stdout"
-  #     REDIS_HOST: redis
-  #     REDIS_PORT: 6379
-  #     REDIS_PASSWORD: ''
-  #     REDIS_DB: 0
-  #     DB_HOST: db
-  #     DB_PORT: 3306
-  #     DB_USERNAME: root
-  #     DB_PASSWORD: password
-  #     DB_DATABASE: vote
-  #     RABBITMQ_HOST: rabbitmq
-  #     RABBITMQ_PORT: 5672
-  #     RABBITMQ_USERNAME: guest
-  #     RABBITMQ_PASSWORD: guest
-  #     BASE_URL: ''
-  #     PUBSUB_ENABLED: 'true'
-  #     DOCS_ENABLED: 'true'
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - .:/app:rw,delegated
-  #   entrypoint: >
-  #     /bin/sh -c "
-  #       wait-for-it $${DB_HOST}:$${DB_PORT} && \
-  #       wait-for-it $${RABBITMQ_HOST}:$${RABBITMQ_PORT} && \
-  #       ENV=local air
-  #     "
-  #   depends_on:
-  #     - db
-  #     - rabbitmq
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - '6379:6379'
+  vote_service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: dev
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+      - '2345:2345'
+    environment:
+      GORACE: "log_path=stdout"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ''
+      REDIS_DB: 0
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: password
+      DB_DATABASE: vote
+      BASE_URL: ''
+      PUBSUB_ENABLED: 'true'
+      DOCS_ENABLED: 'true'
+    volumes:
+      - .:/app:rw,delegated
+    entrypoint: >
+      /bin/sh -c "
+        wait-for-it $${DB_HOST}:$${DB_PORT} && \
+        ENV=local air
+      "
+    depends_on:
+      - db
   dbmate:
     platform: linux/x86_64
     image: amacneil/dbmate

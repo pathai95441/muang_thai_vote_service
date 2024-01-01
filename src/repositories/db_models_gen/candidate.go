@@ -27,7 +27,7 @@ type Candidate struct {
 	ID                   string      `boil:"id" json:"id" toml:"id" yaml:"id"`
 	CandidateName        string      `boil:"candidate_name" json:"candidate_name" toml:"candidate_name" yaml:"candidate_name"`
 	CandidateDescription string      `boil:"candidate_description" json:"candidate_description" toml:"candidate_description" yaml:"candidate_description"`
-	VoteScore            string      `boil:"vote_score" json:"vote_score" toml:"vote_score" yaml:"vote_score"`
+	VoteScore            int         `boil:"vote_score" json:"vote_score" toml:"vote_score" yaml:"vote_score"`
 	CreatedAt            time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	CreatedBy            string      `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
 	UpdatedAt            null.Time   `boil:"updated_at" json:"updated_at,omitempty" toml:"updated_at" yaml:"updated_at,omitempty"`
@@ -112,6 +112,29 @@ func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
 	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
 }
 
+type whereHelperint struct{ field string }
+
+func (w whereHelperint) EQ(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperint) NEQ(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperint) LT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperint) LTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperint) GT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperint) GTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperint) IN(slice []int) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelperint) NIN(slice []int) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
 type whereHelpertime_Time struct{ field string }
 
 func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
@@ -185,7 +208,7 @@ var CandidateWhere = struct {
 	ID                   whereHelperstring
 	CandidateName        whereHelperstring
 	CandidateDescription whereHelperstring
-	VoteScore            whereHelperstring
+	VoteScore            whereHelperint
 	CreatedAt            whereHelpertime_Time
 	CreatedBy            whereHelperstring
 	UpdatedAt            whereHelpernull_Time
@@ -196,7 +219,7 @@ var CandidateWhere = struct {
 	ID:                   whereHelperstring{field: "`candidate`.`id`"},
 	CandidateName:        whereHelperstring{field: "`candidate`.`candidate_name`"},
 	CandidateDescription: whereHelperstring{field: "`candidate`.`candidate_description`"},
-	VoteScore:            whereHelperstring{field: "`candidate`.`vote_score`"},
+	VoteScore:            whereHelperint{field: "`candidate`.`vote_score`"},
 	CreatedAt:            whereHelpertime_Time{field: "`candidate`.`created_at`"},
 	CreatedBy:            whereHelperstring{field: "`candidate`.`created_by`"},
 	UpdatedAt:            whereHelpernull_Time{field: "`candidate`.`updated_at`"},

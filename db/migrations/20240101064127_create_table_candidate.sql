@@ -3,7 +3,7 @@ CREATE TABLE `candidate` (
   `id` VARCHAR(40) NOT NULL,
   `candidate_name` VARCHAR(255) NOT NULL,
   `candidate_description` VARCHAR(255) NOT NULL,
-  `vote_score` VARCHAR(255) NOT NULL,
+  `vote_score` INT NOT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `created_by` VARCHAR(36) NOT NULL,
   `updated_at` TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,

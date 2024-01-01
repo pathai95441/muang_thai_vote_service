@@ -19,7 +19,7 @@ CREATE TABLE `candidate` (
   `id` varchar(40) COLLATE utf8mb4_bin NOT NULL,
   `candidate_name` varchar(255) COLLATE utf8mb4_bin NOT NULL,
   `candidate_description` varchar(255) COLLATE utf8mb4_bin NOT NULL,
-  `vote_score` varchar(255) COLLATE utf8mb4_bin NOT NULL,
+  `vote_score` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `created_by` varchar(36) COLLATE utf8mb4_bin NOT NULL,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,

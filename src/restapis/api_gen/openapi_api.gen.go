@@ -9,9 +9,15 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Get
-	// (GET /list_vote_candidate)
-	GetConfig(ctx echo.Context) error
+	// Create new candidate
+	// (POST /candidate)
+	CreateNewCandidate(ctx echo.Context) error
+	// Update Candidate Info
+	// (PUT /candidate)
+	UpdateCandidateInfo(ctx echo.Context) error
+	// Get All Candidate
+	// (POST /candidates)
+	GetAllCandidate(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -19,12 +25,30 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// GetConfig converts echo context to params.
-func (w *ServerInterfaceWrapper) GetConfig(ctx echo.Context) error {
+// CreateNewCandidate converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateNewCandidate(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetConfig(ctx)
+	err = w.Handler.CreateNewCandidate(ctx)
+	return err
+}
+
+// UpdateCandidateInfo converts echo context to params.
+func (w *ServerInterfaceWrapper) UpdateCandidateInfo(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.UpdateCandidateInfo(ctx)
+	return err
+}
+
+// GetAllCandidate converts echo context to params.
+func (w *ServerInterfaceWrapper) GetAllCandidate(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetAllCandidate(ctx)
 	return err
 }
 
@@ -56,6 +80,8 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.GET(baseURL+"/list_vote_candidate", wrapper.GetConfig)
+	router.POST(baseURL+"/candidate", wrapper.CreateNewCandidate)
+	router.PUT(baseURL+"/candidate", wrapper.UpdateCandidateInfo)
+	router.POST(baseURL+"/candidates", wrapper.GetAllCandidate)
 
 }

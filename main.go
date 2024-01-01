@@ -1,27 +1,22 @@
 package main
 
 import (
-  "github.com/labstack/echo/v4"
-  "github.com/labstack/echo/v4/middleware"
-  "net/http"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/pathai95441/muang_thai_vote_service/src/application"
 )
 
 func main() {
-  // Echo instance
-  e := echo.New()
+	// Echo instance
+	e := echo.New()
 
-  // Middleware
-  e.Use(middleware.Logger())
-  e.Use(middleware.Recover())
+	// Middleware
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
-  // Routes
-  e.GET("/", hello)
+	// Routes
+	application.InitRouter(e)
 
-  // Start server
-  e.Logger.Fatal(e.Start(":8080"))
-}
-
-// Handler
-func hello(c echo.Context) error {
-  return c.String(http.StatusOK, "Hello, World!")
+	// Start server
+	e.Logger.Fatal(e.Start(":8080"))
 }

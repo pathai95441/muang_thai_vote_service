@@ -39,7 +39,7 @@ COPY . /app
 RUN go mod download \
     && go mod verify
 
-RUN go build -o go-boilerplate -a ./cmd/go-boilerplate
+RUN go build -o vote_service -a ./cmd/vote_service
 
 ### Production
 FROM alpine:latest
@@ -54,7 +54,7 @@ RUN apk update \
     && update-ca-certificates
 
 # Copy executable
-COPY --from=builder /app/go-boilerplate /usr/local/bin/go-boilerplate
+COPY --from=builder /app/vote_service /usr/local/bin/vote_service
 COPY --from=builder /app/configs /usr/local/bin/configs
 COPY --from=builder /app/docs /usr/local/bin/docs
 
@@ -62,4 +62,4 @@ WORKDIR /usr/local/bin/
 
 EXPOSE 8080
 
-CMD ["./go-boilerplate"]
+CMD ["./vote_service"]
