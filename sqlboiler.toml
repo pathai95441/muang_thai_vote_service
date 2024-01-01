@@ -1,0 +1,13 @@
+pkgname  = "db_models_gen"
+output   = "./src/repositories/db_models_gen"
+wipe     = true
+no-tests = false
+
+[mysql]
+  dbname  = "vote"
+  host    = "localhost"
+  port    = 3306
+  user    = "root"
+  pass    = "password"
+  sslmode = "false"
+  whitelist = ["vote"]

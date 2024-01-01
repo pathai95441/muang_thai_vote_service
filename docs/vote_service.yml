@@ -1,0 +1,58 @@
+openapi: '3.0.2'
+info:
+  title: Accounting
+  version: '1.0'
+servers:
+  - url: http://{hostname}
+    variables:
+      hostname:
+        default: localhost:8080
+paths:
+  /list_candidate_vote:
+    get:
+      summary: Get List candidate vote
+      operationId: getListCandidateVote
+      tags:
+        - candidate vote
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas:
+    AccountCreationResult:
+      type: object
+      required:
+        - accountId
+      properties:
+        accountId:
+          type: string
+          format: uuid
+    AccountCreation:
+      type: object
+      required:
+        - firstnameTh
+        - lastnameTh
+      properties:
+        firstnameTh:
+          type: string
+        lastnameTh:
+          type: string
+    Account:
+      type: object
+      required:
+        - id
+        - userId
+        - bankAccountNo
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        bankAccountNo:
+          type: string

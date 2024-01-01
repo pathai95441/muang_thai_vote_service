@@ -1,0 +1,80 @@
+version: '3.4'
+
+services:
+  db:
+    platform: linux/x86_64
+    image: mysql:5.7.35
+    restart: unless-stopped
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_DATABASE: accounting
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/mysql
+  # vote_service:
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #     target: dev
+  #   restart: unless-stopped
+  #   ports:
+  #     - '8080:8080'
+  #     - '2345:2345'
+  #   environment:
+  #     GORACE: "log_path=stdout"
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #     REDIS_PASSWORD: ''
+  #     REDIS_DB: 0
+  #     DB_HOST: db
+  #     DB_PORT: 3306
+  #     DB_USERNAME: root
+  #     DB_PASSWORD: password
+  #     DB_DATABASE: accounting
+  #     RABBITMQ_HOST: rabbitmq
+  #     RABBITMQ_PORT: 5672
+  #     RABBITMQ_USERNAME: guest
+  #     RABBITMQ_PASSWORD: guest
+  #     BASE_URL: ''
+  #     PUBSUB_ENABLED: 'true'
+  #     DOCS_ENABLED: 'true'
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - .:/app:rw,delegated
+  #   entrypoint: >
+  #     /bin/sh -c "
+  #       wait-for-it $${DB_HOST}:$${DB_PORT} && \
+  #       wait-for-it $${RABBITMQ_HOST}:$${RABBITMQ_PORT} && \
+  #       ENV=local air
+  #     "
+  #   depends_on:
+  #     - db
+  #     - rabbitmq
+  dbmate:
+    platform: linux/x86_64
+    image: amacneil/dbmate
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: password
+      DB_DATABASE: accounting
+      DBMATE_SCHEMA_FILE: /data/schema.sql
+      DBMATE_MIGRATIONS_DIR: /migrations
+    volumes:
+      - ./db:/data
+      - ./db/migrations:/migrations
+    entrypoint: >
+      /bin/sh -c "
+        until mysql --host=$${DB_HOST} --port=$${DB_PORT} -u $${DB_USERNAME} -p$${DB_PASSWORD} $${DB_DATABASE} -e 'select 1' > /dev/null 2>&1; do
+          echo 'Waiting for db'
+          sleep 1
+        done
+        dbmate --url \"mysql://$${DB_USERNAME}:$${DB_PASSWORD}@$${DB_HOST}:$${DB_PORT}/$${DB_DATABASE}\" up
+      "
+volumes:
+  db_data:
