@@ -6,6 +6,7 @@ package mock_user_repo
 
 import (
 	context "context"
+	sql "database/sql"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -77,4 +78,18 @@ func (m *MockIRepository) Insert(ctx context.Context, userInfo user.UserInfo) er
 func (mr *MockIRepositoryMockRecorder) Insert(ctx, userInfo interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockIRepository)(nil).Insert), ctx, userInfo)
+}
+
+// UpdateVoteCandidate mocks base method.
+func (m *MockIRepository) UpdateVoteCandidate(ctx context.Context, tx *sql.Tx, userID string, candidateID *string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateVoteCandidate", ctx, tx, userID, candidateID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateVoteCandidate indicates an expected call of UpdateVoteCandidate.
+func (mr *MockIRepositoryMockRecorder) UpdateVoteCandidate(ctx, tx, userID, candidateID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateVoteCandidate", reflect.TypeOf((*MockIRepository)(nil).UpdateVoteCandidate), ctx, tx, userID, candidateID)
 }

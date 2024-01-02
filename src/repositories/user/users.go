@@ -3,11 +3,12 @@ package user
 import "github.com/google/uuid"
 
 type UserInfo struct {
-	ID       string
-	UserName string
-	Password string
-	Email    string
-	RoleID   int
+	ID              string
+	UserName        string
+	Password        string
+	Email           string
+	RoleID          int
+	VoteCandidateID *string
 }
 
 func NewUserInfo(
@@ -15,6 +16,7 @@ func NewUserInfo(
 	Password string,
 	Email string,
 	RoleID int,
+	VoteCandidateID *string,
 ) UserInfo {
 	return UserInfo{
 		ID:       uuid.NewString(),
@@ -31,6 +33,7 @@ func UnmarshallUserInfoFromDB(
 	Password string,
 	Email string,
 	RoleID int,
+	VoteCandidateID *string,
 ) UserInfo {
 	return UserInfo{
 		ID,
@@ -38,5 +41,6 @@ func UnmarshallUserInfoFromDB(
 		Password,
 		Email,
 		RoleID,
+		VoteCandidateID,
 	}
 }

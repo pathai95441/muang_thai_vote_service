@@ -64,18 +64,18 @@ func (mr *MockICandidateDomainMockRecorder) DeleteCandidate(ctx, candidateID, de
 }
 
 // GetAllCandidate mocks base method.
-func (m *MockICandidateDomain) GetAllCandidate(ctx context.Context) (*[]candidate.Candidate, error) {
+func (m *MockICandidateDomain) GetAllCandidate(ctx context.Context, orderBy *string) (*[]candidate.Candidate, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllCandidate", ctx)
+	ret := m.ctrl.Call(m, "GetAllCandidate", ctx, orderBy)
 	ret0, _ := ret[0].(*[]candidate.Candidate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAllCandidate indicates an expected call of GetAllCandidate.
-func (mr *MockICandidateDomainMockRecorder) GetAllCandidate(ctx interface{}) *gomock.Call {
+func (mr *MockICandidateDomainMockRecorder) GetAllCandidate(ctx, orderBy interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCandidate", reflect.TypeOf((*MockICandidateDomain)(nil).GetAllCandidate), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCandidate", reflect.TypeOf((*MockICandidateDomain)(nil).GetAllCandidate), ctx, orderBy)
 }
 
 // UpdateCandidateInfo mocks base method.

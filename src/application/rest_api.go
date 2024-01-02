@@ -63,7 +63,20 @@ func CreateNewCandidate(c echo.Context) error {
 }
 
 func GetAllCandidate(c echo.Context) error {
-	candidates, err := serverApp.Queries.GetAllCandidate.Handle(context.Background())
+	var orderBy *string
+	var searchBy *string
+	sortBy := c.QueryParam("sortBy")
+	search := c.QueryParam("search")
+	searchBy = &search
+	orderBy = &sortBy
+	if sortBy != "DESC" && sortBy != "ASC" {
+		orderBy = nil
+	}
+	if search == "" {
+		searchBy = nil
+	}
+
+	candidates, err := serverApp.Queries.GetAllCandidate.Handle(context.Background(), orderBy, searchBy)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, api_gen.ErrorResult{
 			Error: &api_gen.ErrorResultData{
@@ -242,7 +255,7 @@ func SignIn(c echo.Context) error {
 		})
 	}
 
-	token, err := serverApp.Authorization.SignIn(context.Background(), r.UserName, r.Password)
+	token, userInfo, err := serverApp.Authorization.SignIn(context.Background(), r.UserName, r.Password)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, api_gen.ErrorResult{
 			Error: &api_gen.ErrorResultData{
@@ -252,9 +265,13 @@ func SignIn(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusInternalServerError, api_gen.SignInResult{
+	return c.JSON(http.StatusOK, api_gen.SignInResult{
 		Data: &api_gen.SignInResultData{
-			Token: *token,
+			Token:           *token,
+			UserID:          userInfo.ID,
+			RoleID:          float32(userInfo.RoleID),
+			UserName:        userInfo.UserName,
+			VoteCandidateID: *userInfo.VoteCandidateID,
 		},
 	})
 }
@@ -279,7 +296,7 @@ func VoteCandidate(c echo.Context) error {
 			},
 		})
 	}
-	
+
 	payload := commands.VoteCandidateRequest{
 		CandidateID: r.CandidateID,
 		UserID:      serverApp.UserContext.UserID,

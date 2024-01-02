@@ -19,7 +19,11 @@ type ErrorResultData struct {
 
 // SignInResultData defines model for SignInResultData.
 type SignInResultData struct {
-	Token string `json:"token"`
+	RoleID          float32 `json:"roleID"`
+	Token           string  `json:"token"`
+	UserID          string  `json:"userID"`
+	UserName        string  `json:"userName"`
+	VoteCandidateID string  `json:"voteCandidateID"`
 }
 
 // CandidatesResult defines model for CandidatesResult.
@@ -68,6 +72,11 @@ type UpdateCandidate struct {
 type VoteCandidate struct {
 	CandidateID string `json:"candidateID"`
 	UnVote      bool   `json:"unVote"`
+}
+
+// GetAllCandidateParams defines parameters for GetAllCandidate.
+type GetAllCandidateParams struct {
+	SortBy *string `form:"sortBy,omitempty" json:"sortBy,omitempty"`
 }
 
 // CreateNewCandidateJSONRequestBody defines body for CreateNewCandidate for application/json ContentType.

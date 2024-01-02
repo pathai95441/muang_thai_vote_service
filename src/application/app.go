@@ -37,7 +37,6 @@ func initDatabase(dbConfig config.DBConfig) *sql.DB {
 	db, err := sql.Open(dbConfig.Driver, dsn)
 
 	if err != nil {
-		println(err.Error())
 		panic(err)
 	}
 
@@ -57,7 +56,7 @@ func initDomain(repositories Repositories, withTransaction *db_transaction.WithT
 	return Domain{
 		CandidateDomain:  candidate_domain.NewCandidateDomain(repositories.CandidateRepo),
 		UserDomain:       user_domain.NewUserDomain(repositories.UserRepo),
-		VoteDomain:       vote_domain.NewVoteDomain(repositories.CandidateRepo, repositories.VoteHistoryRepo, withTransaction),
+		VoteDomain:       vote_domain.NewVoteDomain(repositories.CandidateRepo, repositories.VoteHistoryRepo, repositories.UserRepo, withTransaction),
 		VoteConfigDomain: vote_config_domain.NewVoteConfigDomain(repositories.VoteConfigRepo, cache),
 	}
 }

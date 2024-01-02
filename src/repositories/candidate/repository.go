@@ -10,12 +10,13 @@ import (
 	"github.com/pathai95441/muang_thai_vote_service/src/utils/retry_utils"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 //go:generate mockgen -source=./repository.go -destination=./mock/mock_repository.go -package=mock_candidate
 type IRepository interface {
 	Get(ctx context.Context, candidateID string) (*Candidate, error)
-	GetAll(ctx context.Context) (*[]Candidate, error)
+	GetAll(ctx context.Context, orderBy *string, search *string) (*[]Candidate, error)
 	Insert(ctx context.Context, candidate Candidate, createBy string) error
 	Update(ctx context.Context, tx *sql.Tx, candidateID string, candidateName *string, candidateDescription *string, voteScore *int, updateBy string) error
 	Delete(ctx context.Context, tx *sql.Tx, candidateID string, deleteBy string) error
@@ -55,16 +56,33 @@ func (r Repository) Get(ctx context.Context, candidateID string) (*Candidate, er
 	}, nil
 }
 
-func (r Repository) GetAll(ctx context.Context) (*[]Candidate, error) {
+func (r Repository) GetAll(ctx context.Context, orderBy *string, search *string) (*[]Candidate, error) {
 	var (
 		candidates        db_models_gen.CandidateSlice
 		mapCandidatesData []Candidate
 		err               error
 	)
 
+	var conditions []qm.QueryMod
+	conditions = append(conditions,
+		db_models_gen.CandidateWhere.DeletedAt.IsNull(),
+	)
+	if orderBy != nil {
+		conditions = append(conditions,
+			qm.OrderBy(db_models_gen.CandidateColumns.VoteScore+" "+*orderBy),
+		)
+
+	}
+	if search != nil {
+		likeSubstring := "%" + *search + "%"
+		conditions = append(conditions,
+			qm.Where(db_models_gen.CandidateColumns.CandidateName+" LIKE ?", likeSubstring),
+		)
+	}
+
 	err = retry_utils.RetryBackOff(config.CurrentConfig.MaxRetiresDB, func() error {
 		candidates, err = db_models_gen.Candidates(
-			db_models_gen.CandidateWhere.DeletedAt.IsNull(),
+			conditions...,
 		).All(ctx, r.db)
 		return err
 	})

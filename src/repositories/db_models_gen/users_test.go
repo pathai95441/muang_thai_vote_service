@@ -647,6 +647,57 @@ func testUserToManyAddOpVoteHistories(t *testing.T) {
 		}
 	}
 }
+func testUserToOneCandidateUsingVoteCandidate(t *testing.T) {
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var local User
+	var foreign Candidate
+
+	seed := randomize.NewSeed()
+	if err := randomize.Struct(seed, &local, userDBTypes, true, userColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize User struct: %s", err)
+	}
+	if err := randomize.Struct(seed, &foreign, candidateDBTypes, false, candidateColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Candidate struct: %s", err)
+	}
+
+	if err := foreign.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	queries.Assign(&local.VoteCandidateID, foreign.ID)
+	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := local.VoteCandidate().One(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !queries.Equal(check.ID, foreign.ID) {
+		t.Errorf("want: %v, got %v", foreign.ID, check.ID)
+	}
+
+	slice := UserSlice{&local}
+	if err = local.L.LoadVoteCandidate(ctx, tx, false, (*[]*User)(&slice), nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.VoteCandidate == nil {
+		t.Error("struct should have been eager loaded")
+	}
+
+	local.R.VoteCandidate = nil
+	if err = local.L.LoadVoteCandidate(ctx, tx, true, &local, nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.VoteCandidate == nil {
+		t.Error("struct should have been eager loaded")
+	}
+}
+
 func testUserToOneRoleUsingRole(t *testing.T) {
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
@@ -695,6 +746,115 @@ func testUserToOneRoleUsingRole(t *testing.T) {
 	}
 	if local.R.Role == nil {
 		t.Error("struct should have been eager loaded")
+	}
+}
+
+func testUserToOneSetOpCandidateUsingVoteCandidate(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a User
+	var b, c Candidate
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &b, candidateDBTypes, false, strmangle.SetComplement(candidatePrimaryKeyColumns, candidateColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, candidateDBTypes, false, strmangle.SetComplement(candidatePrimaryKeyColumns, candidateColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	for i, x := range []*Candidate{&b, &c} {
+		err = a.SetVoteCandidate(ctx, tx, i != 0, x)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if a.R.VoteCandidate != x {
+			t.Error("relationship struct not set to correct value")
+		}
+
+		if x.R.VoteCandidateUsers[0] != &a {
+			t.Error("failed to append to foreign relationship struct")
+		}
+		if !queries.Equal(a.VoteCandidateID, x.ID) {
+			t.Error("foreign key was wrong value", a.VoteCandidateID)
+		}
+
+		zero := reflect.Zero(reflect.TypeOf(a.VoteCandidateID))
+		reflect.Indirect(reflect.ValueOf(&a.VoteCandidateID)).Set(zero)
+
+		if err = a.Reload(ctx, tx); err != nil {
+			t.Fatal("failed to reload", err)
+		}
+
+		if !queries.Equal(a.VoteCandidateID, x.ID) {
+			t.Error("foreign key was wrong value", a.VoteCandidateID, x.ID)
+		}
+	}
+}
+
+func testUserToOneRemoveOpCandidateUsingVoteCandidate(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a User
+	var b Candidate
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &b, candidateDBTypes, false, strmangle.SetComplement(candidatePrimaryKeyColumns, candidateColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+
+	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	if err = a.SetVoteCandidate(ctx, tx, true, &b); err != nil {
+		t.Fatal(err)
+	}
+
+	if err = a.RemoveVoteCandidate(ctx, tx, &b); err != nil {
+		t.Error("failed to remove relationship")
+	}
+
+	count, err := a.VoteCandidate().Count(ctx, tx)
+	if err != nil {
+		t.Error(err)
+	}
+	if count != 0 {
+		t.Error("want no relationships remaining")
+	}
+
+	if a.R.VoteCandidate != nil {
+		t.Error("R struct entry should be nil")
+	}
+
+	if !queries.IsValuerNil(a.VoteCandidateID) {
+		t.Error("foreign key value should be nil")
+	}
+
+	if len(b.R.VoteCandidateUsers) != 0 {
+		t.Error("failed to remove a from b's relationships")
 	}
 }
 
@@ -830,7 +990,7 @@ func testUsersSelect(t *testing.T) {
 }
 
 var (
-	userDBTypes = map[string]string{`ID`: `varchar`, `UserName`: `varchar`, `Password`: `varchar`, `Email`: `varchar`, `RoleID`: `int`, `CreatedAt`: `timestamp`, `CreatedBy`: `varchar`, `UpdatedAt`: `timestamp`, `UpdatedBy`: `varchar`, `DeletedAt`: `timestamp`, `DeletedBy`: `varchar`}
+	userDBTypes = map[string]string{`ID`: `varchar`, `UserName`: `varchar`, `Password`: `varchar`, `Email`: `varchar`, `RoleID`: `int`, `CreatedAt`: `timestamp`, `CreatedBy`: `varchar`, `UpdatedAt`: `timestamp`, `UpdatedBy`: `varchar`, `DeletedAt`: `timestamp`, `DeletedBy`: `varchar`, `VoteCandidateID`: `varchar`}
 	_           = bytes.MinRead
 )
 

@@ -104,7 +104,7 @@ type ClientInterface interface {
 	DeleteCandidateByID(ctx context.Context, candidateID string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetAllCandidate request
-	GetAllCandidate(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetAllCandidate(ctx context.Context, params *GetAllCandidateParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SignIn request with any body
 	SignInWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -182,8 +182,8 @@ func (c *Client) DeleteCandidateByID(ctx context.Context, candidateID string, re
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetAllCandidate(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetAllCandidateRequest(c.Server)
+func (c *Client) GetAllCandidate(ctx context.Context, params *GetAllCandidateParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAllCandidateRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -381,7 +381,7 @@ func NewDeleteCandidateByIDRequest(server string, candidateID string) (*http.Req
 }
 
 // NewGetAllCandidateRequest generates requests for GetAllCandidate
-func NewGetAllCandidateRequest(server string) (*http.Request, error) {
+func NewGetAllCandidateRequest(server string, params *GetAllCandidateParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -398,6 +398,26 @@ func NewGetAllCandidateRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	queryValues := queryURL.Query()
+
+	if params.SortBy != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "sortBy", runtime.ParamLocationQuery, *params.SortBy); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
 
 	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
@@ -584,7 +604,7 @@ type ClientWithResponsesInterface interface {
 	DeleteCandidateByIDWithResponse(ctx context.Context, candidateID string, reqEditors ...RequestEditorFn) (*DeleteCandidateByIDResponse, error)
 
 	// GetAllCandidate request
-	GetAllCandidateWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAllCandidateResponse, error)
+	GetAllCandidateWithResponse(ctx context.Context, params *GetAllCandidateParams, reqEditors ...RequestEditorFn) (*GetAllCandidateResponse, error)
 
 	// SignIn request with any body
 	SignInWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignInResponse, error)
@@ -838,8 +858,8 @@ func (c *ClientWithResponses) DeleteCandidateByIDWithResponse(ctx context.Contex
 }
 
 // GetAllCandidateWithResponse request returning *GetAllCandidateResponse
-func (c *ClientWithResponses) GetAllCandidateWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAllCandidateResponse, error) {
-	rsp, err := c.GetAllCandidate(ctx, reqEditors...)
+func (c *ClientWithResponses) GetAllCandidateWithResponse(ctx context.Context, params *GetAllCandidateParams, reqEditors ...RequestEditorFn) (*GetAllCandidateResponse, error) {
+	rsp, err := c.GetAllCandidate(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

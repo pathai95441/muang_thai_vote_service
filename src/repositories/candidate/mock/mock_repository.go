@@ -50,19 +50,34 @@ func (mr *MockIRepositoryMockRecorder) Delete(ctx, tx, candidateID, deleteBy int
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIRepository)(nil).Delete), ctx, tx, candidateID, deleteBy)
 }
 
-// GetAll mocks base method.
-func (m *MockIRepository) GetAll(ctx context.Context) (*[]candidate.Candidate, error) {
+// Get mocks base method.
+func (m *MockIRepository) Get(ctx context.Context, candidateID string) (*candidate.Candidate, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", ctx)
+	ret := m.ctrl.Call(m, "Get", ctx, candidateID)
+	ret0, _ := ret[0].(*candidate.Candidate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get.
+func (mr *MockIRepositoryMockRecorder) Get(ctx, candidateID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockIRepository)(nil).Get), ctx, candidateID)
+}
+
+// GetAll mocks base method.
+func (m *MockIRepository) GetAll(ctx context.Context, orderBy *string) (*[]candidate.Candidate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAll", ctx, orderBy)
 	ret0, _ := ret[0].(*[]candidate.Candidate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockIRepositoryMockRecorder) GetAll(ctx interface{}) *gomock.Call {
+func (mr *MockIRepositoryMockRecorder) GetAll(ctx, orderBy interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIRepository)(nil).GetAll), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIRepository)(nil).GetAll), ctx, orderBy)
 }
 
 // Insert mocks base method.

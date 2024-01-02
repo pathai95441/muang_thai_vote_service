@@ -14,6 +14,11 @@ paths:
       operationId: GetAllCandidate
       tags:
         - candidate
+      parameters:
+        - name: sortBy
+          in: query
+          schema:
+            type: string
       responses:
         "200":
           $ref: "#/components/responses/CandidatesResult"
@@ -262,8 +267,20 @@ components:
       type: object
       required:
         - token
+        - userID
+        - userName
+        - roleID
+        - voteCandidateID
       properties:
         token:
+          type: string
+        userID:
+          type: string
+        userName:
+          type: string
+        roleID:
+          type: number
+        voteCandidateID:
           type: string
     ErrorResultData:
       type: object

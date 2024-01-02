@@ -176,9 +176,9 @@ func (mr *MockClientInterfaceMockRecorder) DeleteCandidateByID(ctx, candidateID 
 }
 
 // GetAllCandidate mocks base method.
-func (m *MockClientInterface) GetAllCandidate(ctx context.Context, reqEditors ...vote_service.RequestEditorFn) (*http.Response, error) {
+func (m *MockClientInterface) GetAllCandidate(ctx context.Context, params *vote_service.GetAllCandidateParams, reqEditors ...vote_service.RequestEditorFn) (*http.Response, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx}
+	varargs := []interface{}{ctx, params}
 	for _, a := range reqEditors {
 		varargs = append(varargs, a)
 	}
@@ -189,9 +189,9 @@ func (m *MockClientInterface) GetAllCandidate(ctx context.Context, reqEditors ..
 }
 
 // GetAllCandidate indicates an expected call of GetAllCandidate.
-func (mr *MockClientInterfaceMockRecorder) GetAllCandidate(ctx interface{}, reqEditors ...interface{}) *gomock.Call {
+func (mr *MockClientInterfaceMockRecorder) GetAllCandidate(ctx, params interface{}, reqEditors ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx}, reqEditors...)
+	varargs := append([]interface{}{ctx, params}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCandidate", reflect.TypeOf((*MockClientInterface)(nil).GetAllCandidate), varargs...)
 }
 
@@ -439,9 +439,9 @@ func (mr *MockClientWithResponsesInterfaceMockRecorder) DeleteCandidateByIDWithR
 }
 
 // GetAllCandidateWithResponse mocks base method.
-func (m *MockClientWithResponsesInterface) GetAllCandidateWithResponse(ctx context.Context, reqEditors ...vote_service.RequestEditorFn) (*vote_service.GetAllCandidateResponse, error) {
+func (m *MockClientWithResponsesInterface) GetAllCandidateWithResponse(ctx context.Context, params *vote_service.GetAllCandidateParams, reqEditors ...vote_service.RequestEditorFn) (*vote_service.GetAllCandidateResponse, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx}
+	varargs := []interface{}{ctx, params}
 	for _, a := range reqEditors {
 		varargs = append(varargs, a)
 	}
@@ -452,9 +452,9 @@ func (m *MockClientWithResponsesInterface) GetAllCandidateWithResponse(ctx conte
 }
 
 // GetAllCandidateWithResponse indicates an expected call of GetAllCandidateWithResponse.
-func (mr *MockClientWithResponsesInterfaceMockRecorder) GetAllCandidateWithResponse(ctx interface{}, reqEditors ...interface{}) *gomock.Call {
+func (mr *MockClientWithResponsesInterfaceMockRecorder) GetAllCandidateWithResponse(ctx, params interface{}, reqEditors ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx}, reqEditors...)
+	varargs := append([]interface{}{ctx, params}, reqEditors...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCandidateWithResponse", reflect.TypeOf((*MockClientWithResponsesInterface)(nil).GetAllCandidateWithResponse), varargs...)
 }
 

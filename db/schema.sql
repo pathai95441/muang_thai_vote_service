@@ -81,10 +81,13 @@ CREATE TABLE `users` (
   `updated_by` varchar(36) COLLATE utf8mb4_bin DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `deleted_by` varchar(36) COLLATE utf8mb4_bin DEFAULT NULL,
+  `vote_candidate_id` varchar(40) COLLATE utf8mb4_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_name` (`user_name`),
   KEY `fk___user_role` (`role_id`),
   KEY `idx__user__user_name` (`user_name`),
+  KEY `fk_user_vote_candidate` (`vote_candidate_id`),
+  CONSTRAINT `fk_user_vote_candidate` FOREIGN KEY (`vote_candidate_id`) REFERENCES `candidate` (`id`),
   CONSTRAINT `users_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -161,5 +164,6 @@ INSERT INTO `schema_migrations` (version) VALUES
   ('20240101155120'),
   ('20240102080503'),
   ('20240102081329'),
-  ('20240102085807');
+  ('20240102085807'),
+  ('20240102151158');
 UNLOCK TABLES;

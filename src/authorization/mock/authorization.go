@@ -51,12 +51,13 @@ func (mr *MockIAuthHandlerMockRecorder) Authorization(ctx, tokenString, Permissi
 }
 
 // SignIn mocks base method.
-func (m *MockIAuthHandler) SignIn(ctx context.Context, userName, password string) (*string, error) {
+func (m *MockIAuthHandler) SignIn(ctx context.Context, userName, password string) (*string, *user.UserInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SignIn", ctx, userName, password)
 	ret0, _ := ret[0].(*string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(*user.UserInfo)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // SignIn indicates an expected call of SignIn.

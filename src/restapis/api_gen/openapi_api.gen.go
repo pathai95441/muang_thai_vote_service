@@ -24,7 +24,7 @@ type ServerInterface interface {
 	DeleteCandidateByID(ctx echo.Context, candidateID string) error
 	// Get All Candidate
 	// (POST /candidates)
-	GetAllCandidate(ctx echo.Context) error
+	GetAllCandidate(ctx echo.Context, params GetAllCandidateParams) error
 	// SignIn
 	// (POST /sign_in)
 	SignIn(ctx echo.Context) error
@@ -79,8 +79,17 @@ func (w *ServerInterfaceWrapper) DeleteCandidateByID(ctx echo.Context) error {
 func (w *ServerInterfaceWrapper) GetAllCandidate(ctx echo.Context) error {
 	var err error
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAllCandidateParams
+	// ------------- Optional query parameter "sortBy" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sortBy", ctx.QueryParams(), &params.SortBy)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sortBy: %s", err))
+	}
+
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetAllCandidate(ctx)
+	err = w.Handler.GetAllCandidate(ctx, params)
 	return err
 }
 

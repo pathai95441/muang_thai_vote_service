@@ -10,6 +10,9 @@ func main() {
 	// Echo instance
 	e := echo.New()
 
+	// Use the CORS middleware with Echo
+	e.Use(middleware.CORS())
+
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())

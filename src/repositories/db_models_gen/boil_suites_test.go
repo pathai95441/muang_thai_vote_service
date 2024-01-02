@@ -128,6 +128,7 @@ func TestInsert(t *testing.T) {
 // TestToOne tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToOne(t *testing.T) {
+	t.Run("UserToCandidateUsingVoteCandidate", testUserToOneCandidateUsingVoteCandidate)
 	t.Run("UserToRoleUsingRole", testUserToOneRoleUsingRole)
 	t.Run("VoteHistoryToCandidateUsingCandidate", testVoteHistoryToOneCandidateUsingCandidate)
 	t.Run("VoteHistoryToUserUsingUser", testVoteHistoryToOneUserUsingUser)
@@ -140,6 +141,7 @@ func TestOneToOne(t *testing.T) {}
 // TestToMany tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToMany(t *testing.T) {
+	t.Run("CandidateToVoteCandidateUsers", testCandidateToManyVoteCandidateUsers)
 	t.Run("CandidateToVoteHistories", testCandidateToManyVoteHistories)
 	t.Run("RoleToUsers", testRoleToManyUsers)
 	t.Run("UserToVoteHistories", testUserToManyVoteHistories)
@@ -148,6 +150,7 @@ func TestToMany(t *testing.T) {
 // TestToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToOneSet(t *testing.T) {
+	t.Run("UserToCandidateUsingVoteCandidateUsers", testUserToOneSetOpCandidateUsingVoteCandidate)
 	t.Run("UserToRoleUsingUsers", testUserToOneSetOpRoleUsingRole)
 	t.Run("VoteHistoryToCandidateUsingVoteHistories", testVoteHistoryToOneSetOpCandidateUsingCandidate)
 	t.Run("VoteHistoryToUserUsingVoteHistories", testVoteHistoryToOneSetOpUserUsingUser)
@@ -155,7 +158,9 @@ func TestToOneSet(t *testing.T) {
 
 // TestToOneRemove tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToOneRemove(t *testing.T) {}
+func TestToOneRemove(t *testing.T) {
+	t.Run("UserToCandidateUsingVoteCandidateUsers", testUserToOneRemoveOpCandidateUsingVoteCandidate)
+}
 
 // TestOneToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
@@ -168,6 +173,7 @@ func TestOneToOneRemove(t *testing.T) {}
 // TestToManyAdd tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManyAdd(t *testing.T) {
+	t.Run("CandidateToVoteCandidateUsers", testCandidateToManyAddOpVoteCandidateUsers)
 	t.Run("CandidateToVoteHistories", testCandidateToManyAddOpVoteHistories)
 	t.Run("RoleToUsers", testRoleToManyAddOpUsers)
 	t.Run("UserToVoteHistories", testUserToManyAddOpVoteHistories)
@@ -175,11 +181,15 @@ func TestToManyAdd(t *testing.T) {
 
 // TestToManySet tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToManySet(t *testing.T) {}
+func TestToManySet(t *testing.T) {
+	t.Run("CandidateToVoteCandidateUsers", testCandidateToManySetOpVoteCandidateUsers)
+}
 
 // TestToManyRemove tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToManyRemove(t *testing.T) {}
+func TestToManyRemove(t *testing.T) {
+	t.Run("CandidateToVoteCandidateUsers", testCandidateToManyRemoveOpVoteCandidateUsers)
+}
 
 func TestReload(t *testing.T) {
 	t.Run("Candidates", testCandidatesReload)

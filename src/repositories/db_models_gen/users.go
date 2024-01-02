@@ -24,113 +24,123 @@ import (
 
 // User is an object representing the database table.
 type User struct {
-	ID        string      `boil:"id" json:"id" toml:"id" yaml:"id"`
-	UserName  string      `boil:"user_name" json:"user_name" toml:"user_name" yaml:"user_name"`
-	Password  string      `boil:"password" json:"password" toml:"password" yaml:"password"`
-	Email     string      `boil:"email" json:"email" toml:"email" yaml:"email"`
-	RoleID    int         `boil:"role_id" json:"role_id" toml:"role_id" yaml:"role_id"`
-	CreatedAt time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	CreatedBy string      `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
-	UpdatedAt null.Time   `boil:"updated_at" json:"updated_at,omitempty" toml:"updated_at" yaml:"updated_at,omitempty"`
-	UpdatedBy null.String `boil:"updated_by" json:"updated_by,omitempty" toml:"updated_by" yaml:"updated_by,omitempty"`
-	DeletedAt null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
-	DeletedBy null.String `boil:"deleted_by" json:"deleted_by,omitempty" toml:"deleted_by" yaml:"deleted_by,omitempty"`
+	ID              string      `boil:"id" json:"id" toml:"id" yaml:"id"`
+	UserName        string      `boil:"user_name" json:"user_name" toml:"user_name" yaml:"user_name"`
+	Password        string      `boil:"password" json:"password" toml:"password" yaml:"password"`
+	Email           string      `boil:"email" json:"email" toml:"email" yaml:"email"`
+	RoleID          int         `boil:"role_id" json:"role_id" toml:"role_id" yaml:"role_id"`
+	CreatedAt       time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	CreatedBy       string      `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
+	UpdatedAt       null.Time   `boil:"updated_at" json:"updated_at,omitempty" toml:"updated_at" yaml:"updated_at,omitempty"`
+	UpdatedBy       null.String `boil:"updated_by" json:"updated_by,omitempty" toml:"updated_by" yaml:"updated_by,omitempty"`
+	DeletedAt       null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
+	DeletedBy       null.String `boil:"deleted_by" json:"deleted_by,omitempty" toml:"deleted_by" yaml:"deleted_by,omitempty"`
+	VoteCandidateID null.String `boil:"vote_candidate_id" json:"vote_candidate_id,omitempty" toml:"vote_candidate_id" yaml:"vote_candidate_id,omitempty"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var UserColumns = struct {
-	ID        string
-	UserName  string
-	Password  string
-	Email     string
-	RoleID    string
-	CreatedAt string
-	CreatedBy string
-	UpdatedAt string
-	UpdatedBy string
-	DeletedAt string
-	DeletedBy string
+	ID              string
+	UserName        string
+	Password        string
+	Email           string
+	RoleID          string
+	CreatedAt       string
+	CreatedBy       string
+	UpdatedAt       string
+	UpdatedBy       string
+	DeletedAt       string
+	DeletedBy       string
+	VoteCandidateID string
 }{
-	ID:        "id",
-	UserName:  "user_name",
-	Password:  "password",
-	Email:     "email",
-	RoleID:    "role_id",
-	CreatedAt: "created_at",
-	CreatedBy: "created_by",
-	UpdatedAt: "updated_at",
-	UpdatedBy: "updated_by",
-	DeletedAt: "deleted_at",
-	DeletedBy: "deleted_by",
+	ID:              "id",
+	UserName:        "user_name",
+	Password:        "password",
+	Email:           "email",
+	RoleID:          "role_id",
+	CreatedAt:       "created_at",
+	CreatedBy:       "created_by",
+	UpdatedAt:       "updated_at",
+	UpdatedBy:       "updated_by",
+	DeletedAt:       "deleted_at",
+	DeletedBy:       "deleted_by",
+	VoteCandidateID: "vote_candidate_id",
 }
 
 var UserTableColumns = struct {
-	ID        string
-	UserName  string
-	Password  string
-	Email     string
-	RoleID    string
-	CreatedAt string
-	CreatedBy string
-	UpdatedAt string
-	UpdatedBy string
-	DeletedAt string
-	DeletedBy string
+	ID              string
+	UserName        string
+	Password        string
+	Email           string
+	RoleID          string
+	CreatedAt       string
+	CreatedBy       string
+	UpdatedAt       string
+	UpdatedBy       string
+	DeletedAt       string
+	DeletedBy       string
+	VoteCandidateID string
 }{
-	ID:        "users.id",
-	UserName:  "users.user_name",
-	Password:  "users.password",
-	Email:     "users.email",
-	RoleID:    "users.role_id",
-	CreatedAt: "users.created_at",
-	CreatedBy: "users.created_by",
-	UpdatedAt: "users.updated_at",
-	UpdatedBy: "users.updated_by",
-	DeletedAt: "users.deleted_at",
-	DeletedBy: "users.deleted_by",
+	ID:              "users.id",
+	UserName:        "users.user_name",
+	Password:        "users.password",
+	Email:           "users.email",
+	RoleID:          "users.role_id",
+	CreatedAt:       "users.created_at",
+	CreatedBy:       "users.created_by",
+	UpdatedAt:       "users.updated_at",
+	UpdatedBy:       "users.updated_by",
+	DeletedAt:       "users.deleted_at",
+	DeletedBy:       "users.deleted_by",
+	VoteCandidateID: "users.vote_candidate_id",
 }
 
 // Generated where
 
 var UserWhere = struct {
-	ID        whereHelperstring
-	UserName  whereHelperstring
-	Password  whereHelperstring
-	Email     whereHelperstring
-	RoleID    whereHelperint
-	CreatedAt whereHelpertime_Time
-	CreatedBy whereHelperstring
-	UpdatedAt whereHelpernull_Time
-	UpdatedBy whereHelpernull_String
-	DeletedAt whereHelpernull_Time
-	DeletedBy whereHelpernull_String
+	ID              whereHelperstring
+	UserName        whereHelperstring
+	Password        whereHelperstring
+	Email           whereHelperstring
+	RoleID          whereHelperint
+	CreatedAt       whereHelpertime_Time
+	CreatedBy       whereHelperstring
+	UpdatedAt       whereHelpernull_Time
+	UpdatedBy       whereHelpernull_String
+	DeletedAt       whereHelpernull_Time
+	DeletedBy       whereHelpernull_String
+	VoteCandidateID whereHelpernull_String
 }{
-	ID:        whereHelperstring{field: "`users`.`id`"},
-	UserName:  whereHelperstring{field: "`users`.`user_name`"},
-	Password:  whereHelperstring{field: "`users`.`password`"},
-	Email:     whereHelperstring{field: "`users`.`email`"},
-	RoleID:    whereHelperint{field: "`users`.`role_id`"},
-	CreatedAt: whereHelpertime_Time{field: "`users`.`created_at`"},
-	CreatedBy: whereHelperstring{field: "`users`.`created_by`"},
-	UpdatedAt: whereHelpernull_Time{field: "`users`.`updated_at`"},
-	UpdatedBy: whereHelpernull_String{field: "`users`.`updated_by`"},
-	DeletedAt: whereHelpernull_Time{field: "`users`.`deleted_at`"},
-	DeletedBy: whereHelpernull_String{field: "`users`.`deleted_by`"},
+	ID:              whereHelperstring{field: "`users`.`id`"},
+	UserName:        whereHelperstring{field: "`users`.`user_name`"},
+	Password:        whereHelperstring{field: "`users`.`password`"},
+	Email:           whereHelperstring{field: "`users`.`email`"},
+	RoleID:          whereHelperint{field: "`users`.`role_id`"},
+	CreatedAt:       whereHelpertime_Time{field: "`users`.`created_at`"},
+	CreatedBy:       whereHelperstring{field: "`users`.`created_by`"},
+	UpdatedAt:       whereHelpernull_Time{field: "`users`.`updated_at`"},
+	UpdatedBy:       whereHelpernull_String{field: "`users`.`updated_by`"},
+	DeletedAt:       whereHelpernull_Time{field: "`users`.`deleted_at`"},
+	DeletedBy:       whereHelpernull_String{field: "`users`.`deleted_by`"},
+	VoteCandidateID: whereHelpernull_String{field: "`users`.`vote_candidate_id`"},
 }
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
+	VoteCandidate string
 	Role          string
 	VoteHistories string
 }{
+	VoteCandidate: "VoteCandidate",
 	Role:          "Role",
 	VoteHistories: "VoteHistories",
 }
 
 // userR is where relationships are stored.
 type userR struct {
+	VoteCandidate *Candidate       `boil:"VoteCandidate" json:"VoteCandidate" toml:"VoteCandidate" yaml:"VoteCandidate"`
 	Role          *Role            `boil:"Role" json:"Role" toml:"Role" yaml:"Role"`
 	VoteHistories VoteHistorySlice `boil:"VoteHistories" json:"VoteHistories" toml:"VoteHistories" yaml:"VoteHistories"`
 }
@@ -138,6 +148,13 @@ type userR struct {
 // NewStruct creates a new relationship struct
 func (*userR) NewStruct() *userR {
 	return &userR{}
+}
+
+func (r *userR) GetVoteCandidate() *Candidate {
+	if r == nil {
+		return nil
+	}
+	return r.VoteCandidate
 }
 
 func (r *userR) GetRole() *Role {
@@ -158,8 +175,8 @@ func (r *userR) GetVoteHistories() VoteHistorySlice {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "user_name", "password", "email", "role_id", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by"}
-	userColumnsWithoutDefault = []string{"id", "user_name", "password", "email", "role_id", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by"}
+	userAllColumns            = []string{"id", "user_name", "password", "email", "role_id", "created_at", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "vote_candidate_id"}
+	userColumnsWithoutDefault = []string{"id", "user_name", "password", "email", "role_id", "created_by", "updated_at", "updated_by", "deleted_at", "deleted_by", "vote_candidate_id"}
 	userColumnsWithDefault    = []string{"created_at"}
 	userPrimaryKeyColumns     = []string{"id"}
 	userGeneratedColumns      = []string{}
@@ -443,6 +460,17 @@ func (q userQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool,
 	return count > 0, nil
 }
 
+// VoteCandidate pointed to by the foreign key.
+func (o *User) VoteCandidate(mods ...qm.QueryMod) candidateQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("`id` = ?", o.VoteCandidateID),
+	}
+
+	queryMods = append(queryMods, mods...)
+
+	return Candidates(queryMods...)
+}
+
 // Role pointed to by the foreign key.
 func (o *User) Role(mods ...qm.QueryMod) roleQuery {
 	queryMods := []qm.QueryMod{
@@ -466,6 +494,114 @@ func (o *User) VoteHistories(mods ...qm.QueryMod) voteHistoryQuery {
 	)
 
 	return VoteHistories(queryMods...)
+}
+
+// LoadVoteCandidate allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for an N-1 relationship.
+func (userL) LoadVoteCandidate(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		if !queries.IsNil(object.VoteCandidateID) {
+			args = append(args, object.VoteCandidateID)
+		}
+
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if queries.Equal(a, obj.VoteCandidateID) {
+					continue Outer
+				}
+			}
+
+			if !queries.IsNil(obj.VoteCandidateID) {
+				args = append(args, obj.VoteCandidateID)
+			}
+
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`candidate`),
+		qm.WhereIn(`candidate.id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load Candidate")
+	}
+
+	var resultSlice []*Candidate
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice Candidate")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results of eager load for candidate")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for candidate")
+	}
+
+	if len(userAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(resultSlice) == 0 {
+		return nil
+	}
+
+	if singular {
+		foreign := resultSlice[0]
+		object.R.VoteCandidate = foreign
+		if foreign.R == nil {
+			foreign.R = &candidateR{}
+		}
+		foreign.R.VoteCandidateUsers = append(foreign.R.VoteCandidateUsers, object)
+		return nil
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
+			if queries.Equal(local.VoteCandidateID, foreign.ID) {
+				local.R.VoteCandidate = foreign
+				if foreign.R == nil {
+					foreign.R = &candidateR{}
+				}
+				foreign.R.VoteCandidateUsers = append(foreign.R.VoteCandidateUsers, local)
+				break
+			}
+		}
+	}
+
+	return nil
 }
 
 // LoadRole allows an eager lookup of values, cached into the
@@ -667,6 +803,86 @@ func (userL) LoadVoteHistories(ctx context.Context, e boil.ContextExecutor, sing
 		}
 	}
 
+	return nil
+}
+
+// SetVoteCandidate of the user to the related item.
+// Sets o.R.VoteCandidate to related.
+// Adds o to related.R.VoteCandidateUsers.
+func (o *User) SetVoteCandidate(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Candidate) error {
+	var err error
+	if insert {
+		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
+		}
+	}
+
+	updateQuery := fmt.Sprintf(
+		"UPDATE `users` SET %s WHERE %s",
+		strmangle.SetParamNames("`", "`", 0, []string{"vote_candidate_id"}),
+		strmangle.WhereClause("`", "`", 0, userPrimaryKeyColumns),
+	)
+	values := []interface{}{related.ID, o.ID}
+
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, updateQuery)
+		fmt.Fprintln(writer, values)
+	}
+	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	queries.Assign(&o.VoteCandidateID, related.ID)
+	if o.R == nil {
+		o.R = &userR{
+			VoteCandidate: related,
+		}
+	} else {
+		o.R.VoteCandidate = related
+	}
+
+	if related.R == nil {
+		related.R = &candidateR{
+			VoteCandidateUsers: UserSlice{o},
+		}
+	} else {
+		related.R.VoteCandidateUsers = append(related.R.VoteCandidateUsers, o)
+	}
+
+	return nil
+}
+
+// RemoveVoteCandidate relationship.
+// Sets o.R.VoteCandidate to nil.
+// Removes o from all passed in related items' relationships struct.
+func (o *User) RemoveVoteCandidate(ctx context.Context, exec boil.ContextExecutor, related *Candidate) error {
+	var err error
+
+	queries.SetScanner(&o.VoteCandidateID, nil)
+	if _, err = o.Update(ctx, exec, boil.Whitelist("vote_candidate_id")); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	if o.R != nil {
+		o.R.VoteCandidate = nil
+	}
+	if related == nil || related.R == nil {
+		return nil
+	}
+
+	for i, ri := range related.R.VoteCandidateUsers {
+		if queries.Equal(o.VoteCandidateID, ri.VoteCandidateID) {
+			continue
+		}
+
+		ln := len(related.R.VoteCandidateUsers)
+		if ln > 1 && i < ln-1 {
+			related.R.VoteCandidateUsers[i] = related.R.VoteCandidateUsers[ln-1]
+		}
+		related.R.VoteCandidateUsers = related.R.VoteCandidateUsers[:ln-1]
+		break
+	}
 	return nil
 }
 
@@ -1052,6 +1268,7 @@ func (o UserSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, col
 
 var mySQLUserUniqueColumns = []string{
 	"id",
+	"user_name",
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.

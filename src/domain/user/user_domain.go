@@ -25,7 +25,7 @@ func (d UserDomain) CreateNewUser(ctx context.Context, userName string, password
 	if err != nil {
 		return err
 	}
-	newUser := user.NewUserInfo(userName, hash, email, roleID)
+	newUser := user.NewUserInfo(userName, hash, email, roleID, nil)
 
 	return d.userRepo.Insert(ctx, newUser)
 }

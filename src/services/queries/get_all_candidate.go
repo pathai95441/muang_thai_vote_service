@@ -9,7 +9,7 @@ import (
 
 //go:generate mockgen -source=./get_all_candidate.go -destination=./mock_queries/get_all_candidate.go -package=mock_queries
 type IGetAllCandidateQuery interface {
-	Handle(ctx context.Context) (*[]candidate.Candidate, error)
+	Handle(ctx context.Context, orderBy *string, search *string) (*[]candidate.Candidate, error)
 }
 
 type GetAllCandidateQuery struct {
@@ -20,8 +20,8 @@ func NewGetAllCandidateQuery(candidateDomain candidate_domain.ICandidateDomain) 
 	return GetAllCandidateQuery{candidateDomain: candidateDomain}
 }
 
-func (c GetAllCandidateQuery) Handle(ctx context.Context) (*[]candidate.Candidate, error) {
-	candidates, err := c.candidateDomain.GetAllCandidate(ctx)
+func (c GetAllCandidateQuery) Handle(ctx context.Context, orderBy *string, search *string) (*[]candidate.Candidate, error) {
+	candidates, err := c.candidateDomain.GetAllCandidate(ctx, orderBy, search)
 	if err != nil {
 		return nil, err
 	}

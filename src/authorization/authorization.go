@@ -21,7 +21,7 @@ type Token struct {
 //go:generate mockgen -source=./authorization.go -destination=./mock/authorization.go -package=mock_auth
 type IAuthHandler interface {
 	Authorization(ctx context.Context, tokenString string, Permission []int) (*user.UserInfo, error)
-	SignIn(ctx context.Context, userName string, password string) (*string, error)
+	SignIn(ctx context.Context, userName string, password string) (*string, *user.UserInfo, error)
 }
 
 type AuthHandler struct {
@@ -49,15 +49,15 @@ func (c AuthHandler) Authorization(ctx context.Context, tokenString string, perm
 	return userInfo, nil
 }
 
-func (c AuthHandler) SignIn(ctx context.Context, userName string, password string) (*string, error) {
+func (c AuthHandler) SignIn(ctx context.Context, userName string, password string) (*string, *user.UserInfo, error) {
 	userInfo, err := c.userRepo.GetByUserName(ctx, userName)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	passwordIsMatch := c.checkPassword(password, userInfo.Password)
 	if !passwordIsMatch {
-		return nil, fmt.Errorf("invalid password")
+		return nil, nil, fmt.Errorf("invalid password")
 	}
 
 	claims := Token{
@@ -70,10 +70,10 @@ func (c AuthHandler) SignIn(ctx context.Context, userName string, password strin
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(config.CurrentConfig.SecretKey)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return &tokenString, nil
+	return &tokenString, userInfo, nil
 }
 
 func (c AuthHandler) checkPassword(password string, hashedPassword string) bool {

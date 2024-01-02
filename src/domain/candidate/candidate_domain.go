@@ -10,7 +10,7 @@ import (
 //go:generate mockgen -source=./candidate_domain.go -destination=./mock/mock_candidate_domain.go -package=mock_candidate_domain
 type ICandidateDomain interface {
 	AddNewCandidate(ctx context.Context, candidateName string, candidateDescription string, createBy string) error
-	GetAllCandidate(ctx context.Context) (*[]candidate.Candidate, error)
+	GetAllCandidate(ctx context.Context, orderBy *string, search *string) (*[]candidate.Candidate, error)
 	UpdateCandidateInfo(ctx context.Context, candidateID string, candidateName *string, candidateDescription *string, updateBy string) error
 	DeleteCandidate(ctx context.Context, candidateID string, deletedBy string) error
 }
@@ -29,8 +29,8 @@ func (d CandidateDomain) AddNewCandidate(ctx context.Context, candidateName stri
 	return d.candidateRepo.Insert(ctx, newCandidate, createBy)
 }
 
-func (d CandidateDomain) GetAllCandidate(ctx context.Context) (*[]candidate.Candidate, error) {
-	candidates, err := d.candidateRepo.GetAll(ctx)
+func (d CandidateDomain) GetAllCandidate(ctx context.Context, orderBy *string, search *string) (*[]candidate.Candidate, error) {
+	candidates, err := d.candidateRepo.GetAll(ctx, orderBy, search)
 	if err != nil {
 		return nil, err
 	}

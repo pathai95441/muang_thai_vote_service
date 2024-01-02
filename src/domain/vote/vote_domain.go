@@ -7,6 +7,7 @@ import (
 
 	"github.com/pathai95441/muang_thai_vote_service/src/consts"
 	"github.com/pathai95441/muang_thai_vote_service/src/repositories/candidate"
+	"github.com/pathai95441/muang_thai_vote_service/src/repositories/user"
 	"github.com/pathai95441/muang_thai_vote_service/src/repositories/vote_history"
 	"github.com/pathai95441/muang_thai_vote_service/src/utils/db_transaction"
 )
@@ -20,16 +21,16 @@ type IVoteDomain interface {
 type VoteDomain struct {
 	candidateRepo   candidate.IRepository
 	voteHistoryRepo vote_history.IRepository
+	usersRepo       user.IRepository
 	withTransaction db_transaction.IWithTxn
 }
 
-func NewVoteDomain(candidateRepo candidate.IRepository, voteHistoryRepo vote_history.IRepository, withTransaction db_transaction.IWithTxn) VoteDomain {
-	return VoteDomain{candidateRepo, voteHistoryRepo, withTransaction}
+func NewVoteDomain(candidateRepo candidate.IRepository, voteHistoryRepo vote_history.IRepository, usersRepo user.IRepository, withTransaction db_transaction.IWithTxn) VoteDomain {
+	return VoteDomain{candidateRepo, voteHistoryRepo, usersRepo, withTransaction}
 }
 
 func (d VoteDomain) VoteCandidate(ctx context.Context, candidateID string, userID string) error {
 	// check existing vote
-	print("tang888-0")
 	voted, err := d.voteHistoryRepo.GetByUserID(ctx, userID)
 	if err != nil {
 		return err
@@ -75,9 +76,19 @@ func (d VoteDomain) updateVoteScore(ctx context.Context, candidateID string, use
 			if err != nil {
 				return err
 			}
+
+			err = d.usersRepo.UpdateVoteCandidate(ctx, tx, userID, nil)
+			if err != nil {
+				return err
+			}
 		} else {
 			history := vote_history.NewVoteHistory(candidateID, userID)
 			err = d.voteHistoryRepo.Insert(ctx, tx, history)
+			if err != nil {
+				return err
+			}
+
+			err = d.usersRepo.UpdateVoteCandidate(ctx, tx, userID, &candidateID)
 			if err != nil {
 				return err
 			}
