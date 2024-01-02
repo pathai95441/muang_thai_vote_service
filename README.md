@@ -11,7 +11,7 @@ make compose-dev
 
 # then run create database & migrate
 make dbmate ARGS="create vote"
-make dbmate ARGS+"migrate"
+make dbmate ARGS="migrate"
 
 # for run unit-test
 make unit-test
