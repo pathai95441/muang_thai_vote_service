@@ -36,16 +36,16 @@ func (m *MockIGetAllCandidateQuery) EXPECT() *MockIGetAllCandidateQueryMockRecor
 }
 
 // Handle mocks base method.
-func (m *MockIGetAllCandidateQuery) Handle(ctx context.Context, orderBy *string) (*[]candidate.Candidate, error) {
+func (m *MockIGetAllCandidateQuery) Handle(ctx context.Context, orderBy, search *string) (*[]candidate.Candidate, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Handle", ctx, orderBy)
+	ret := m.ctrl.Call(m, "Handle", ctx, orderBy, search)
 	ret0, _ := ret[0].(*[]candidate.Candidate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Handle indicates an expected call of Handle.
-func (mr *MockIGetAllCandidateQueryMockRecorder) Handle(ctx, orderBy interface{}) *gomock.Call {
+func (mr *MockIGetAllCandidateQueryMockRecorder) Handle(ctx, orderBy, search interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Handle", reflect.TypeOf((*MockIGetAllCandidateQuery)(nil).Handle), ctx, orderBy)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Handle", reflect.TypeOf((*MockIGetAllCandidateQuery)(nil).Handle), ctx, orderBy, search)
 }

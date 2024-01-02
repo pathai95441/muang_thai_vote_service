@@ -19,9 +19,11 @@ var _ = Describe("Repository", func() {
 		ctx    context.Context
 		db     *sql.DB
 		mockDB sqlmock.Sqlmock
+		mockTx *sql.Tx
 		repo   user.IRepository
 
-		userID = uuid.New().String()
+		userID      = uuid.New().String()
+		candidateID = uuid.New().String()
 
 		UserName        = "mock-UserName"
 		Password        = "mock-Password"
@@ -180,6 +182,36 @@ var _ = Describe("Repository", func() {
 				Email:    Email,
 				RoleID:   RoleID,
 			})
+			Expect(err).Should(HaveOccurred())
+		})
+	})
+
+	Context("UpdateVoteCandidate", func() {
+		var (
+			exec = regexp.QuoteMeta("UPDATE `users` SET `updated_by`=?,`vote_candidate_id`=? WHERE `id`=?")
+		)
+		BeforeEach(func() {
+			mockDB.ExpectBegin()
+
+			var err error
+			mockTx, err = db.BeginTx(ctx, nil)
+			Expect(err).ShouldNot(HaveOccurred())
+		})
+		It("should update success", func() {
+			mockDB.ExpectExec(exec).WithArgs(
+				CreatedBy, candidateID, userID,
+			).WillReturnResult(sqlmock.NewResult(1, 1))
+
+			err := repo.UpdateVoteCandidate(ctx, mockTx, userID, &candidateID)
+
+			Expect(err).ShouldNot(HaveOccurred())
+		})
+		It("should return err when db is error", func() {
+			mockDB.ExpectExec(exec).WithArgs(
+				CreatedBy, candidateID, userID,
+			).WillReturnError(sql.ErrConnDone)
+
+			err := repo.UpdateVoteCandidate(ctx, mockTx, userID, &candidateID)
 			Expect(err).Should(HaveOccurred())
 		})
 	})

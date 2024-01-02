@@ -66,18 +66,18 @@ func (mr *MockIRepositoryMockRecorder) Get(ctx, candidateID interface{}) *gomock
 }
 
 // GetAll mocks base method.
-func (m *MockIRepository) GetAll(ctx context.Context, orderBy *string) (*[]candidate.Candidate, error) {
+func (m *MockIRepository) GetAll(ctx context.Context, orderBy, search *string) (*[]candidate.Candidate, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", ctx, orderBy)
+	ret := m.ctrl.Call(m, "GetAll", ctx, orderBy, search)
 	ret0, _ := ret[0].(*[]candidate.Candidate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockIRepositoryMockRecorder) GetAll(ctx, orderBy interface{}) *gomock.Call {
+func (mr *MockIRepositoryMockRecorder) GetAll(ctx, orderBy, search interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIRepository)(nil).GetAll), ctx, orderBy)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIRepository)(nil).GetAll), ctx, orderBy, search)
 }
 
 // Insert mocks base method.
