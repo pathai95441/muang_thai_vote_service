@@ -86,10 +86,10 @@ test: goprivate
 	@go test $(GO_FILES) -cover --race
 
 tests: goprivate
-	@ENV=unittest ginkgo -r -cover --skip-package internal/integration,internal/domain/db_models_gen
+	@ENV=unittest ginkgo -r -cover --skip-package src/repositories/db_models_gen
 
 unit-test: goprivate
-	@ENV=unittest ginkgo -r -cover -coverprofile=unitcoverage.coverprofile --junit-report=report.xml --output-dir=./ --skip-package internal/domain/db_models_gen,internal/integration
+	@ENV=unittest ginkgo -r -cover -coverprofile=unitcoverage.coverprofile -outputdir=./ --skip-package src/repositories/db_models_gen
 
 generate-unitcoverage:
 	@gcov2lcov -infile=unitcoverage.coverprofile -outfile=unitcoverage.lcov

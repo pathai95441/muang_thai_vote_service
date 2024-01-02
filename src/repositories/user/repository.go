@@ -47,11 +47,12 @@ func (r Repository) Get(ctx context.Context, userID string) (*UserInfo, error) {
 	}
 
 	return &UserInfo{
-		ID:       userInfo.ID,
-		UserName: userInfo.UserName,
-		Password: userInfo.Password,
-		Email:    userInfo.Email,
-		RoleID:   userInfo.RoleID,
+		ID:              userInfo.ID,
+		UserName:        userInfo.UserName,
+		Password:        userInfo.Password,
+		Email:           userInfo.Email,
+		RoleID:          userInfo.RoleID,
+		VoteCandidateID: &userInfo.VoteCandidateID.String,
 	}, nil
 }
 
