@@ -4,6 +4,13 @@ type Config struct {
 	DBConfig     DBConfig
 	MaxRetiresDB int
 	SecretKey    []byte
+	RedisConfig  RedisConfig
+}
+
+type RedisConfig struct {
+	Address  string
+	Password string
+	DB       int
 }
 
 type DBConfig struct {
@@ -24,6 +31,11 @@ var CurrentConfig = Config{
 		Port:     3306,
 		Database: "vote",
 	},
-	SecretKey:    []byte("MTL_SECRET_KEY"),
+	SecretKey: []byte("MTL_SECRET_KEY"),
+	RedisConfig: RedisConfig{
+		Address:  "redis:6379",
+		Password: "",
+		DB:       0,
+	},
 	MaxRetiresDB: 3,
 }

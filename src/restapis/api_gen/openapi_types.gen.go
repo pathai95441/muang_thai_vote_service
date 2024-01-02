@@ -67,6 +67,7 @@ type UpdateCandidate struct {
 // VoteCandidate defines model for VoteCandidate.
 type VoteCandidate struct {
 	CandidateID string `json:"candidateID"`
+	UnVote      bool   `json:"unVote"`
 }
 
 // CreateNewCandidateJSONRequestBody defines body for CreateNewCandidate for application/json ContentType.
@@ -77,9 +78,6 @@ type UpdateCandidateInfoJSONRequestBody UpdateCandidate
 
 // SignInJSONRequestBody defines body for SignIn for application/json ContentType.
 type SignInJSONRequestBody SignIn
-
-// UnVoteCandidateJSONRequestBody defines body for UnVoteCandidate for application/json ContentType.
-type UnVoteCandidateJSONRequestBody VoteCandidate
 
 // CreateNewUserJSONRequestBody defines body for CreateNewUser for application/json ContentType.
 type CreateNewUserJSONRequestBody CreateNewUser

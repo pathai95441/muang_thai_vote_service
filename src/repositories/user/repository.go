@@ -11,7 +11,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
-//go:generate mockgen -source=./repository.go -destination=./mock/mock_repository.go -package=mock_user
+//go:generate mockgen -source=./repository.go -destination=./mock/mock_repository.go -package=mock_user_repo
 type IRepository interface {
 	Get(ctx context.Context, userID string) (*UserInfo, error)
 	GetByUserName(ctx context.Context, userName string) (*UserInfo, error)
@@ -89,7 +89,7 @@ func (r Repository) Insert(ctx context.Context, userInfo UserInfo) error {
 		RoleID:    userInfo.RoleID,
 		CreatedBy: consts.ServiceName,
 	}
-	
+
 	return retry_utils.RetryBackOff(config.CurrentConfig.MaxRetiresDB, func() error {
 		return model.Insert(ctx, r.db, boil.Infer())
 	})

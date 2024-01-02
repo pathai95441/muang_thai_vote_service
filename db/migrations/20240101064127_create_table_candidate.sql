@@ -1,7 +1,7 @@
 -- migrate:up
 CREATE TABLE `candidate` (
   `id` VARCHAR(40) NOT NULL,
-  `candidate_name` VARCHAR(255) NOT NULL,
+  `candidate_name` VARCHAR(255) UNIQUE NOT NULL,
   `candidate_description` VARCHAR(255) NOT NULL,
   `vote_score` INT NOT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

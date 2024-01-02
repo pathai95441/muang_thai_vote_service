@@ -6,6 +6,7 @@ package mock_user
 
 import (
 	context "context"
+	sql "database/sql"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -50,16 +51,60 @@ func (mr *MockIRepositoryMockRecorder) CountVote(ctx, candidateID interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountVote", reflect.TypeOf((*MockIRepository)(nil).CountVote), ctx, candidateID)
 }
 
-// Insert mocks base method.
-func (m *MockIRepository) Insert(ctx context.Context, history vote_history.VoteHistory) error {
+// DeletedVoted mocks base method.
+func (m *MockIRepository) DeletedVoted(ctx context.Context, tx *sql.Tx, historyID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Insert", ctx, history)
+	ret := m.ctrl.Call(m, "DeletedVoted", ctx, tx, historyID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeletedVoted indicates an expected call of DeletedVoted.
+func (mr *MockIRepositoryMockRecorder) DeletedVoted(ctx, tx, historyID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletedVoted", reflect.TypeOf((*MockIRepository)(nil).DeletedVoted), ctx, tx, historyID)
+}
+
+// GetByUserID mocks base method.
+func (m *MockIRepository) GetByUserID(ctx context.Context, userID string) (*vote_history.VoteHistory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByUserID", ctx, userID)
+	ret0, _ := ret[0].(*vote_history.VoteHistory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByUserID indicates an expected call of GetByUserID.
+func (mr *MockIRepositoryMockRecorder) GetByUserID(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUserID", reflect.TypeOf((*MockIRepository)(nil).GetByUserID), ctx, userID)
+}
+
+// GetUserVote mocks base method.
+func (m *MockIRepository) GetUserVote(ctx context.Context, userID, candidateID string) (*vote_history.VoteHistory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserVote", ctx, userID, candidateID)
+	ret0, _ := ret[0].(*vote_history.VoteHistory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserVote indicates an expected call of GetUserVote.
+func (mr *MockIRepositoryMockRecorder) GetUserVote(ctx, userID, candidateID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserVote", reflect.TypeOf((*MockIRepository)(nil).GetUserVote), ctx, userID, candidateID)
+}
+
+// Insert mocks base method.
+func (m *MockIRepository) Insert(ctx context.Context, tx *sql.Tx, history vote_history.VoteHistory) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Insert", ctx, tx, history)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Insert indicates an expected call of Insert.
-func (mr *MockIRepositoryMockRecorder) Insert(ctx, history interface{}) *gomock.Call {
+func (mr *MockIRepositoryMockRecorder) Insert(ctx, tx, history interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockIRepository)(nil).Insert), ctx, history)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockIRepository)(nil).Insert), ctx, tx, history)
 }

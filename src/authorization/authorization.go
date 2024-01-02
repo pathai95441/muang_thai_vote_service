@@ -14,13 +14,13 @@ import (
 )
 
 type Token struct {
-	UserID string `json:"username"`
+	UserID string `json:"userID"`
 	jwt.StandardClaims
 }
 
 //go:generate mockgen -source=./authorization.go -destination=./mock/authorization.go -package=mock_auth
 type IAuthHandler interface {
-	Authorization(ctx context.Context, tokenString string, Permission []int) error
+	Authorization(ctx context.Context, tokenString string, Permission []int) (*user.UserInfo, error)
 	SignIn(ctx context.Context, userName string, password string) (*string, error)
 }
 
@@ -32,21 +32,21 @@ func NewAuthHandler(userRepo user.IRepository) IAuthHandler {
 	return AuthHandler{userRepo}
 }
 
-func (c AuthHandler) Authorization(ctx context.Context, tokenString string, permissions []int) error {
+func (c AuthHandler) Authorization(ctx context.Context, tokenString string, permissions []int) (*user.UserInfo, error) {
 	tokenData, err := validateToken(tokenString)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	userInfo, err := c.userRepo.Get(ctx, tokenData.UserID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if !contains.ContainsElement(permissions, userInfo.RoleID) {
-		return errors.New("not has permission")
+		return nil, errors.New("not has permission")
 	}
 
-	return nil
+	return userInfo, nil
 }
 
 func (c AuthHandler) SignIn(ctx context.Context, userName string, password string) (*string, error) {

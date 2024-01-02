@@ -13,6 +13,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 )
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
@@ -98,6 +100,9 @@ type ClientInterface interface {
 
 	UpdateCandidateInfo(ctx context.Context, body UpdateCandidateInfoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DeleteCandidateByID request
+	DeleteCandidateByID(ctx context.Context, candidateID string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetAllCandidate request
 	GetAllCandidate(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -105,11 +110,6 @@ type ClientInterface interface {
 	SignInWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SignIn(ctx context.Context, body SignInJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// UnVoteCandidate request with any body
-	UnVoteCandidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	UnVoteCandidate(ctx context.Context, body UnVoteCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateNewUser request with any body
 	CreateNewUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -170,6 +170,18 @@ func (c *Client) UpdateCandidateInfo(ctx context.Context, body UpdateCandidateIn
 	return c.Client.Do(req)
 }
 
+func (c *Client) DeleteCandidateByID(ctx context.Context, candidateID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteCandidateByIDRequest(c.Server, candidateID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetAllCandidate(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAllCandidateRequest(c.Server)
 	if err != nil {
@@ -196,30 +208,6 @@ func (c *Client) SignInWithBody(ctx context.Context, contentType string, body io
 
 func (c *Client) SignIn(ctx context.Context, body SignInJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSignInRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UnVoteCandidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUnVoteCandidateRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UnVoteCandidate(ctx context.Context, body UnVoteCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUnVoteCandidateRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -358,6 +346,40 @@ func NewUpdateCandidateInfoRequestWithBody(server string, contentType string, bo
 	return req, nil
 }
 
+// NewDeleteCandidateByIDRequest generates requests for DeleteCandidateByID
+func NewDeleteCandidateByIDRequest(server string, candidateID string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "candidateID", runtime.ParamLocationPath, candidateID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/candidate/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetAllCandidateRequest generates requests for GetAllCandidate
 func NewGetAllCandidateRequest(server string) (*http.Request, error) {
 	var err error
@@ -406,46 +428,6 @@ func NewSignInRequestWithBody(server string, contentType string, body io.Reader)
 	}
 
 	operationPath := fmt.Sprintf("/sign_in")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewUnVoteCandidateRequest calls the generic UnVoteCandidate builder with application/json body
-func NewUnVoteCandidateRequest(server string, body UnVoteCandidateJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewUnVoteCandidateRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewUnVoteCandidateRequestWithBody generates requests for UnVoteCandidate with any type of body
-func NewUnVoteCandidateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/un_vote_candidate")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -598,6 +580,9 @@ type ClientWithResponsesInterface interface {
 
 	UpdateCandidateInfoWithResponse(ctx context.Context, body UpdateCandidateInfoJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCandidateInfoResponse, error)
 
+	// DeleteCandidateByID request
+	DeleteCandidateByIDWithResponse(ctx context.Context, candidateID string, reqEditors ...RequestEditorFn) (*DeleteCandidateByIDResponse, error)
+
 	// GetAllCandidate request
 	GetAllCandidateWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAllCandidateResponse, error)
 
@@ -605,11 +590,6 @@ type ClientWithResponsesInterface interface {
 	SignInWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignInResponse, error)
 
 	SignInWithResponse(ctx context.Context, body SignInJSONRequestBody, reqEditors ...RequestEditorFn) (*SignInResponse, error)
-
-	// UnVoteCandidate request with any body
-	UnVoteCandidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UnVoteCandidateResponse, error)
-
-	UnVoteCandidateWithResponse(ctx context.Context, body UnVoteCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*UnVoteCandidateResponse, error)
 
 	// CreateNewUser request with any body
 	CreateNewUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNewUserResponse, error)
@@ -676,6 +656,33 @@ func (r UpdateCandidateInfoResponse) StatusCode() int {
 	return 0
 }
 
+type DeleteCandidateByIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+	JSON500 *struct {
+		Error *ErrorResultData `json:"error,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteCandidateByIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteCandidateByIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetAllCandidateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -727,33 +734,6 @@ func (r SignInResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SignInResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type UnVoteCandidateResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON400      *struct {
-		Error *ErrorResultData `json:"error,omitempty"`
-	}
-	JSON500 *struct {
-		Error *ErrorResultData `json:"error,omitempty"`
-	}
-}
-
-// Status returns HTTPResponse.Status
-func (r UnVoteCandidateResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r UnVoteCandidateResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -848,6 +828,15 @@ func (c *ClientWithResponses) UpdateCandidateInfoWithResponse(ctx context.Contex
 	return ParseUpdateCandidateInfoResponse(rsp)
 }
 
+// DeleteCandidateByIDWithResponse request returning *DeleteCandidateByIDResponse
+func (c *ClientWithResponses) DeleteCandidateByIDWithResponse(ctx context.Context, candidateID string, reqEditors ...RequestEditorFn) (*DeleteCandidateByIDResponse, error) {
+	rsp, err := c.DeleteCandidateByID(ctx, candidateID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteCandidateByIDResponse(rsp)
+}
+
 // GetAllCandidateWithResponse request returning *GetAllCandidateResponse
 func (c *ClientWithResponses) GetAllCandidateWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAllCandidateResponse, error) {
 	rsp, err := c.GetAllCandidate(ctx, reqEditors...)
@@ -872,23 +861,6 @@ func (c *ClientWithResponses) SignInWithResponse(ctx context.Context, body SignI
 		return nil, err
 	}
 	return ParseSignInResponse(rsp)
-}
-
-// UnVoteCandidateWithBodyWithResponse request with arbitrary body returning *UnVoteCandidateResponse
-func (c *ClientWithResponses) UnVoteCandidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UnVoteCandidateResponse, error) {
-	rsp, err := c.UnVoteCandidateWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUnVoteCandidateResponse(rsp)
-}
-
-func (c *ClientWithResponses) UnVoteCandidateWithResponse(ctx context.Context, body UnVoteCandidateJSONRequestBody, reqEditors ...RequestEditorFn) (*UnVoteCandidateResponse, error) {
-	rsp, err := c.UnVoteCandidate(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUnVoteCandidateResponse(rsp)
 }
 
 // CreateNewUserWithBodyWithResponse request with arbitrary body returning *CreateNewUserResponse
@@ -999,6 +971,43 @@ func ParseUpdateCandidateInfoResponse(rsp *http.Response) (*UpdateCandidateInfoR
 	return response, nil
 }
 
+// ParseDeleteCandidateByIDResponse parses an HTTP response from a DeleteCandidateByIDWithResponse call
+func ParseDeleteCandidateByIDResponse(rsp *http.Response) (*DeleteCandidateByIDResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteCandidateByIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest struct {
+			Error *ErrorResultData `json:"error,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetAllCandidateResponse parses an HTTP response from a GetAllCandidateWithResponse call
 func ParseGetAllCandidateResponse(rsp *http.Response) (*GetAllCandidateResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
@@ -1059,43 +1068,6 @@ func ParseSignInResponse(rsp *http.Response) (*SignInResponse, error) {
 		}
 		response.JSON200 = &dest
 
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest struct {
-			Error *ErrorResultData `json:"error,omitempty"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest struct {
-			Error *ErrorResultData `json:"error,omitempty"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseUnVoteCandidateResponse parses an HTTP response from a UnVoteCandidateWithResponse call
-func ParseUnVoteCandidateResponse(rsp *http.Response) (*UnVoteCandidateResponse, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &UnVoteCandidateResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest struct {
 			Error *ErrorResultData `json:"error,omitempty"`

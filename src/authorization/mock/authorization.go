@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	user "github.com/pathai95441/muang_thai_vote_service/src/repositories/user"
 )
 
 // MockIAuthHandler is a mock of IAuthHandler interface.
@@ -35,11 +36,12 @@ func (m *MockIAuthHandler) EXPECT() *MockIAuthHandlerMockRecorder {
 }
 
 // Authorization mocks base method.
-func (m *MockIAuthHandler) Authorization(ctx context.Context, tokenString string, Permission []int) error {
+func (m *MockIAuthHandler) Authorization(ctx context.Context, tokenString string, Permission []int) (*user.UserInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Authorization", ctx, tokenString, Permission)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*user.UserInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Authorization indicates an expected call of Authorization.

@@ -4,6 +4,10 @@
 package api_gen
 
 import (
+	"fmt"
+	"net/http"
+
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,15 +19,15 @@ type ServerInterface interface {
 	// Update Candidate Info
 	// (PUT /candidate)
 	UpdateCandidateInfo(ctx echo.Context) error
+	// Delete candidate
+	// (DELETE /candidate/{candidateID})
+	DeleteCandidateByID(ctx echo.Context, candidateID string) error
 	// Get All Candidate
 	// (POST /candidates)
 	GetAllCandidate(ctx echo.Context) error
 	// SignIn
 	// (POST /sign_in)
 	SignIn(ctx echo.Context) error
-	// UnVoteCandidate
-	// (POST /un_vote_candidate)
-	UnVoteCandidate(ctx echo.Context) error
 	// Create new User
 	// (POST /user)
 	CreateNewUser(ctx echo.Context) error
@@ -55,6 +59,22 @@ func (w *ServerInterfaceWrapper) UpdateCandidateInfo(ctx echo.Context) error {
 	return err
 }
 
+// DeleteCandidateByID converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteCandidateByID(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "candidateID" -------------
+	var candidateID string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "candidateID", runtime.ParamLocationPath, ctx.Param("candidateID"), &candidateID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter candidateID: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.DeleteCandidateByID(ctx, candidateID)
+	return err
+}
+
 // GetAllCandidate converts echo context to params.
 func (w *ServerInterfaceWrapper) GetAllCandidate(ctx echo.Context) error {
 	var err error
@@ -70,15 +90,6 @@ func (w *ServerInterfaceWrapper) SignIn(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.SignIn(ctx)
-	return err
-}
-
-// UnVoteCandidate converts echo context to params.
-func (w *ServerInterfaceWrapper) UnVoteCandidate(ctx echo.Context) error {
-	var err error
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.UnVoteCandidate(ctx)
 	return err
 }
 
@@ -130,9 +141,9 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 	router.POST(baseURL+"/candidate", wrapper.CreateNewCandidate)
 	router.PUT(baseURL+"/candidate", wrapper.UpdateCandidateInfo)
+	router.DELETE(baseURL+"/candidate/:candidateID", wrapper.DeleteCandidateByID)
 	router.POST(baseURL+"/candidates", wrapper.GetAllCandidate)
 	router.POST(baseURL+"/sign_in", wrapper.SignIn)
-	router.POST(baseURL+"/un_vote_candidate", wrapper.UnVoteCandidate)
 	router.POST(baseURL+"/user", wrapper.CreateNewUser)
 	router.POST(baseURL+"/vote_candidate", wrapper.VoteCandidate)
 

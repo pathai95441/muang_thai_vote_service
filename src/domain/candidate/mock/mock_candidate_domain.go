@@ -49,6 +49,20 @@ func (mr *MockICandidateDomainMockRecorder) AddNewCandidate(ctx, candidateName, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddNewCandidate", reflect.TypeOf((*MockICandidateDomain)(nil).AddNewCandidate), ctx, candidateName, candidateDescription, createBy)
 }
 
+// DeleteCandidate mocks base method.
+func (m *MockICandidateDomain) DeleteCandidate(ctx context.Context, candidateID, deletedBy string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteCandidate", ctx, candidateID, deletedBy)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteCandidate indicates an expected call of DeleteCandidate.
+func (mr *MockICandidateDomainMockRecorder) DeleteCandidate(ctx, candidateID, deletedBy interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCandidate", reflect.TypeOf((*MockICandidateDomain)(nil).DeleteCandidate), ctx, candidateID, deletedBy)
+}
+
 // GetAllCandidate mocks base method.
 func (m *MockICandidateDomain) GetAllCandidate(ctx context.Context) (*[]candidate.Candidate, error) {
 	m.ctrl.T.Helper()

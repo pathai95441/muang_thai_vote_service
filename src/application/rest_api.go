@@ -36,7 +36,7 @@ func CreateNewCandidate(c echo.Context) error {
 	payload := commands.AddNewCandidateRequest{
 		CandidateName:        r.CandidateName,
 		CandidateDescription: r.CandidateDescription,
-		CreateBy:             "test",
+		CreateBy:             serverApp.UserContext.UserID,
 	}
 
 	err = validate.Struct(payload)
@@ -112,7 +112,7 @@ func UpdateCandidateInfo(c echo.Context) error {
 		CandidateID:          r.CandidateID,
 		CandidateName:        r.CandidateName,
 		CandidateDescription: r.CandidateDescription,
-		UpdateBy:             "test",
+		UpdateBy:             serverApp.UserContext.UserID,
 	}
 
 	err = validate.Struct(payload)
@@ -137,6 +137,38 @@ func UpdateCandidateInfo(c echo.Context) error {
 	}
 
 	return c.String(http.StatusOK, "Update Candidate info Success")
+}
+
+func DeleteCandidateByID(c echo.Context) error {
+	candidateID := c.Param("candidateID")
+
+	payload := commands.DeleteCandidateRequest{
+		CandidateID: candidateID,
+		DeletedBy:   serverApp.UserContext.UserID,
+	}
+
+	err := validate.Struct(payload)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, api_gen.ErrorResult{
+			Error: &api_gen.ErrorResultData{
+				Code:    consts.BadRequest,
+				Message: err.Error(),
+			},
+		})
+	}
+
+	err = serverApp.Commands.DeleteCandidate.Handle(context.Background(), payload)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, api_gen.ErrorResult{
+			Error: &api_gen.ErrorResultData{
+				Code:    consts.InternalServerError,
+				Message: err.Error(),
+			},
+		})
+	}
+
+	return c.String(http.StatusOK, "Deleted Candidate Success")
 }
 
 // User
@@ -225,4 +257,54 @@ func SignIn(c echo.Context) error {
 			Token: *token,
 		},
 	})
+}
+
+// vote
+func VoteCandidate(c echo.Context) error {
+	b, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, api_gen.ErrorResult{
+			Error: &api_gen.ErrorResultData{
+				Code:    consts.InternalServerError,
+				Message: err.Error(),
+			},
+		})
+	}
+	var r api_gen.VoteCandidate
+	if err := json.Unmarshal(b, &r); err != nil {
+		return c.JSON(http.StatusBadRequest, api_gen.ErrorResult{
+			Error: &api_gen.ErrorResultData{
+				Code:    consts.BadRequest,
+				Message: err.Error(),
+			},
+		})
+	}
+	
+	payload := commands.VoteCandidateRequest{
+		CandidateID: r.CandidateID,
+		UserID:      serverApp.UserContext.UserID,
+		UnVote:      r.UnVote,
+	}
+
+	err = validate.Struct(payload)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, api_gen.ErrorResult{
+			Error: &api_gen.ErrorResultData{
+				Code:    consts.BadRequest,
+				Message: err.Error(),
+			},
+		})
+	}
+
+	err = serverApp.Commands.VoteCandidate.Handle(context.Background(), payload)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, api_gen.ErrorResult{
+			Error: &api_gen.ErrorResultData{
+				Code:    consts.InternalServerError,
+				Message: err.Error(),
+			},
+		})
+	}
+
+	return c.String(http.StatusOK, "Vote Success")
 }

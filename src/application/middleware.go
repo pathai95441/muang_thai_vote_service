@@ -21,7 +21,13 @@ func authorizationAllPermission(next echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			return c.String(http.StatusUnauthorized, err.Error())
 		}
-		err = serverApp.Authorization.Authorization(context.Background(), *token, allPermission)
+		userInfo, err := serverApp.Authorization.Authorization(context.Background(), *token, allPermission)
+		serverApp.UserContext = &UserContext{
+			UserID:   userInfo.ID,
+			UserName: userInfo.UserName,
+			Email:    userInfo.Email,
+			RoleID:   userInfo.RoleID,
+		}
 		if err != nil {
 			return c.String(http.StatusUnauthorized, err.Error())
 		}
@@ -37,7 +43,13 @@ func authorizationAdminPermission(next echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			return c.String(http.StatusUnauthorized, err.Error())
 		}
-		err = serverApp.Authorization.Authorization(context.Background(), *token, adminOnly)
+		userInfo, err := serverApp.Authorization.Authorization(context.Background(), *token, adminOnly)
+		serverApp.UserContext = &UserContext{
+			UserID:   userInfo.ID,
+			UserName: userInfo.UserName,
+			Email:    userInfo.Email,
+			RoleID:   userInfo.RoleID,
+		}
 		if err != nil {
 			return c.String(http.StatusUnauthorized, err.Error())
 		}

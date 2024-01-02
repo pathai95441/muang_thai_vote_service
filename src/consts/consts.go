@@ -1,5 +1,5 @@
 package consts
 
 const (
-	ServiceName = "vote"
+	ServiceName = "vote_service"
 )

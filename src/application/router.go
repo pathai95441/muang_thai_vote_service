@@ -11,6 +11,7 @@ func InitRouter(e *echo.Echo) {
 	e.GET("/candidates", GetAllCandidate, authorizationAllPermission)
 	e.POST("/candidate", CreateNewCandidate, authorizationAdminPermission)
 	e.PUT("/candidate", UpdateCandidateInfo, authorizationAdminPermission)
+	e.DELETE("/candidate/:candidateID", DeleteCandidateByID, authorizationAdminPermission)
 
 	// User API
 	e.POST("/user", CreateNewUser)
@@ -18,4 +19,6 @@ func InitRouter(e *echo.Echo) {
 	// Auth
 	e.POST("/sign_in", SignIn)
 
+	// Vote APi
+	e.POST("/vote_candidate", VoteCandidate, authorizationAllPermission)
 }

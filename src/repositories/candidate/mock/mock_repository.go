@@ -6,6 +6,7 @@ package mock_candidate
 
 import (
 	context "context"
+	sql "database/sql"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -33,6 +34,20 @@ func NewMockIRepository(ctrl *gomock.Controller) *MockIRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockIRepository) EXPECT() *MockIRepositoryMockRecorder {
 	return m.recorder
+}
+
+// Delete mocks base method.
+func (m *MockIRepository) Delete(ctx context.Context, tx *sql.Tx, candidateID, deleteBy string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", ctx, tx, candidateID, deleteBy)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockIRepositoryMockRecorder) Delete(ctx, tx, candidateID, deleteBy interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIRepository)(nil).Delete), ctx, tx, candidateID, deleteBy)
 }
 
 // GetAll mocks base method.
@@ -65,15 +80,15 @@ func (mr *MockIRepositoryMockRecorder) Insert(ctx, candidate, createBy interface
 }
 
 // Update mocks base method.
-func (m *MockIRepository) Update(ctx context.Context, candidateID string, candidateName, candidateDescription *string, voteScore *int, updateBy string) error {
+func (m *MockIRepository) Update(ctx context.Context, tx *sql.Tx, candidateID string, candidateName, candidateDescription *string, voteScore *int, updateBy string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, candidateID, candidateName, candidateDescription, voteScore, updateBy)
+	ret := m.ctrl.Call(m, "Update", ctx, tx, candidateID, candidateName, candidateDescription, voteScore, updateBy)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockIRepositoryMockRecorder) Update(ctx, candidateID, candidateName, candidateDescription, voteScore, updateBy interface{}) *gomock.Call {
+func (mr *MockIRepositoryMockRecorder) Update(ctx, tx, candidateID, candidateName, candidateDescription, voteScore, updateBy interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIRepository)(nil).Update), ctx, candidateID, candidateName, candidateDescription, voteScore, updateBy)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockIRepository)(nil).Update), ctx, tx, candidateID, candidateName, candidateDescription, voteScore, updateBy)
 }

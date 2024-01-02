@@ -56,6 +56,29 @@ paths:
           $ref: "#/components/responses/ErrorResult"
         "500":
           $ref: "#/components/responses/ErrorResult"
+  /candidate/{candidateID}:
+    delete:
+      summary: Delete candidate
+      operationId: DeleteCandidateByID
+      tags:
+        - candidate
+      parameters:
+        - name: candidateID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/ErrorResult"
+        "500":
+          $ref: "#/components/responses/ErrorResult"
   /user:
     post:
       summary: Create new User
@@ -94,25 +117,6 @@ paths:
     post:
       summary: VoteCandidate
       operationId: VoteCandidate
-      tags:
-        - vote
-      requestBody:
-        $ref: "#/components/requestBodies/VoteCandidate"
-      responses:
-        "200":
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-        "400":
-          $ref: "#/components/responses/ErrorResult"
-        "500":
-          $ref: "#/components/responses/ErrorResult"
-  /un_vote_candidate:
-    post:
-      summary: UnVoteCandidate
-      operationId: UnVoteCandidate
       tags:
         - vote
       requestBody:
@@ -231,9 +235,12 @@ components:
               type: object
               required:
                 - candidateID
+                - unVote
               properties:
                 candidateID:
                   type: string
+                unVote:
+                  type: boolean
   schemas:
     CandidatesResultData:
       type: object

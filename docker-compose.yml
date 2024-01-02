@@ -48,6 +48,7 @@ services:
       "
     depends_on:
       - db
+      - redis
   dbmate:
     platform: linux/x86_64
     image: amacneil/dbmate

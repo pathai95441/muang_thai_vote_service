@@ -2,6 +2,7 @@ package candidate_domain
 
 import (
 	"context"
+	"errors"
 
 	"github.com/pathai95441/muang_thai_vote_service/src/repositories/candidate"
 )
@@ -11,6 +12,7 @@ type ICandidateDomain interface {
 	AddNewCandidate(ctx context.Context, candidateName string, candidateDescription string, createBy string) error
 	GetAllCandidate(ctx context.Context) (*[]candidate.Candidate, error)
 	UpdateCandidateInfo(ctx context.Context, candidateID string, candidateName *string, candidateDescription *string, updateBy string) error
+	DeleteCandidate(ctx context.Context, candidateID string, deletedBy string) error
 }
 
 type CandidateDomain struct {
@@ -37,5 +39,18 @@ func (d CandidateDomain) GetAllCandidate(ctx context.Context) (*[]candidate.Cand
 }
 
 func (d CandidateDomain) UpdateCandidateInfo(ctx context.Context, candidateID string, candidateName *string, candidateDescription *string, updateBy string) error {
-	return d.candidateRepo.Update(ctx, candidateID, candidateName, candidateDescription, nil, updateBy)
+	return d.candidateRepo.Update(ctx, nil, candidateID, candidateName, candidateDescription, nil, updateBy)
+}
+
+func (d CandidateDomain) DeleteCandidate(ctx context.Context, candidateID string, deletedBy string) error {
+	candidateInfo, err := d.candidateRepo.Get(ctx, candidateID)
+	if err != nil {
+		return err
+	}
+
+	if candidateInfo.VoteScore != 0 {
+		return errors.New("can't deleted candidate vote score is not zero")
+	}
+
+	return d.candidateRepo.Delete(ctx, nil, candidateID, deletedBy)
 }
