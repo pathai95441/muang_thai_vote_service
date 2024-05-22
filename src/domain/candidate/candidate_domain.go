@@ -16,6 +16,7 @@ type ICandidateDomain interface {
 }
 
 type CandidateDomain struct {
+	// i
 	candidateRepo candidate.IRepository
 }
 
